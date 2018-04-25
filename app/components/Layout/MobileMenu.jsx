@@ -71,21 +71,6 @@ class MobileMenu extends React.Component {
                 <Link to="/create-account">Create Account</Link>
             );
 
-        let tradeLink = this.props.lastMarket ? (
-            <a
-                onClick={this._onNavigate.bind(
-                    this,
-                    `/market/${this.props.lastMarket}`
-                )}
-            >
-                <Translate content="header.exchange" />
-            </a>
-        ) : (
-            <a onClick={this._onNavigate.bind(this, "/explorer/markets")}>
-                <Translate content="header.exchange" />
-            </a>
-        );
-
         return (
             <Panel id={id} position="left">
                 <div className="grid-content" style={{zIndex: 200}}>
@@ -100,9 +85,6 @@ class MobileMenu extends React.Component {
                                     <Translate content="header.payments" />
                                 </Link>
                             </li>
-                            {myActiveAccounts.size === 0 ? null : (
-                                <li>{tradeLink}</li>
-                            )}
                             {currentAccount &&
                             myAccounts.indexOf(currentAccount) !== -1 ? (
                                 <li onClick={this.onClick}>

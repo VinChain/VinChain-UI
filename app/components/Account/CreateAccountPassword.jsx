@@ -548,7 +548,7 @@ class CreateAccountPassword extends React.Component {
                                 <Translate content="wallet.tips_dashboard" />:
                             </td>
                             <td>
-                                <Link to="/dashboard">
+                                <Link to="/explorer/blocks">
                                     <Translate content="header.dashboard" />
                                 </Link>
                             </td>

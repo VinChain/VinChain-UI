@@ -17,7 +17,7 @@ import DashboardPage from "./components/Dashboard/DashboardPage";
 import DashboardAccountsOnly from "./components/Dashboard/DashboardAccountsOnly";
 import Witnesses from "./components/Explorer/Witnesses";
 import CommitteeMembers from "./components/Explorer/CommitteeMembers";
-import FeesContainer from "./components/Explorer/FeesContainer";
+// import FeesContainer from "./components/Explorer/FeesContainer";
 import BlocksContainer from "./components/Explorer/BlocksContainer";
 import AssetsContainer from "./components/Explorer/AssetsContainer";
 import AccountsContainer from "./components/Explorer/AccountsContainer";
@@ -82,11 +82,11 @@ class Auth extends React.Component {
 
 const routes = (
     <Route path="/" component={App} onEnter={willTransitionTo}>
-        <IndexRedirect to="/dashboard" />
+        <IndexRedirect to="/explorer/blocks" />
         <Route path="/auth/:data" component={Auth} />
-        <Route path="/dashboard" component={DashboardPage} />
+        {/*<Route path="/dashboard" component={DashboardPage} />*/}
         <Route path="explorer" component={Explorer} />
-        <Route path="/explorer/fees" component={FeesContainer} />
+        {/*<Route path="/explorer/fees" component={FeesContainer} />*/}
         <Route path="/explorer/blocks" component={BlocksContainer} />
         <Route path="/explorer/assets" component={AssetsContainer} />
         <Route path="/explorer/accounts" component={AccountsContainer} />

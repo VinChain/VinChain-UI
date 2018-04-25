@@ -650,7 +650,9 @@ class AccountOverview extends React.Component {
                             market = "USD";
                         let preferredMarket = market
                             ? market
-                            : core_asset ? core_asset.get("symbol") : "BTS";
+                            : core_asset
+                                ? core_asset.get("symbol")
+                                : "BTS";
                         let directMarketLink = notCore ? (
                             <Link
                                 to={`/market/${asset.get(
@@ -1025,9 +1027,7 @@ class AccountOverview extends React.Component {
         const currentBridges =
             this.props.bridgeCoins.get(this.state.bridgeAsset) || null;
 
-        // add unicode non-breaking space as subtext to Activity Tab to ensure that all titles are aligned
-        // horizontally
-        const hiddenSubText = "\u00a0";
+        const hiddenSubText = "";
 
         return (
             <div className="grid-content app-tables no-padding" ref="appTables">
@@ -1246,71 +1246,6 @@ class AccountOverview extends React.Component {
                                         balanceObjects={includedBalancesList}
                                     />
                                 )}
-                            </Tab>
-
-                            <Tab
-                                title="account.open_orders"
-                                subText={ordersValue}
-                            >
-                                <AccountOrders {...this.props}>
-                                    <tbody>
-                                        <tr className="total-value">
-                                            <td
-                                                colSpan="7"
-                                                style={{textAlign: "right"}}
-                                            >
-                                                {totalValueText}
-                                            </td>
-                                            <td
-                                                colSpan="2"
-                                                style={{textAlign: "left"}}
-                                            >
-                                                {ordersValue}
-                                            </td>
-                                            {this.props.isMyAccount ? (
-                                                <td />
-                                            ) : null}
-                                        </tr>
-                                    </tbody>
-                                </AccountOrders>
-                            </Tab>
-
-                            <Tab
-                                title="account.collaterals"
-                                subText={
-                                    <span
-                                        className={
-                                            this.state.globalMarginStatus
-                                        }
-                                    >
-                                        {marginValue}
-                                    </span>
-                                }
-                            >
-                                <div className="content-block">
-                                    <div className="generic-bordered-box">
-                                        <MarginPositions
-                                            preferredUnit={preferredUnit}
-                                            className="dashboard-table"
-                                            callOrders={call_orders}
-                                            account={account}
-                                        >
-                                            <tr className="total-value">
-                                                <td>{totalValueText}</td>
-                                                <td />
-                                                <td>{debtValue}</td>
-                                                <td className="column-hide-medium">
-                                                    {collateralValue}
-                                                </td>
-                                                <td />
-                                                <td>{marginValue}</td>
-                                                <td className="column-hide-small" />
-                                                <td className="column-hide-small" />
-                                                <td colSpan="3" />
-                                            </tr>
-                                        </MarginPositions>
-                                    </div>
-                                </div>
                             </Tab>
 
                             <Tab

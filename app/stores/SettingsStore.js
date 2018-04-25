@@ -7,7 +7,7 @@ import ls from "common/localStorage";
 import {Apis} from "bitsharesjs-ws";
 import {settingsAPIs} from "api/apiConfig";
 
-const CORE_ASSET = "BTS"; // Setting this to BTS to prevent loading issues when used with BTS chain which is the most usual case currently
+const CORE_ASSET = "VIN"; // Setting this to BTS to prevent loading issues when used with BTS chain which is the most usual case currently
 
 const STORAGE_KEY = "__graphene__";
 let ss = new ls(STORAGE_KEY);
@@ -67,19 +67,19 @@ class SettingsStore {
 
         let defaults = {
             locale: [
-                "en",
-                "zh",
-                "fr",
-                "ko",
-                "de",
-                "es",
-                "it",
-                "tr",
-                "ru",
-                "ja"
+                "en" //,
+                // "zh",
+                // "fr",
+                // "ko",
+                // "de",
+                // "es",
+                // "it",
+                // "tr",
+                // "ru",
+                // "ja"
             ],
             apiServer: apiServer,
-            unit: [CORE_ASSET, "USD", "CNY", "BTC", "EUR", "GBP"],
+            unit: [CORE_ASSET],
             showSettles: [{translate: "yes"}, {translate: "no"}],
             showAssetPercent: [{translate: "yes"}, {translate: "no"}],
             themes: ["darkTheme", "lightTheme", "midnightTheme"],
@@ -87,15 +87,14 @@ class SettingsStore {
                 {translate: "cloud_login"},
                 {translate: "local_wallet"}
             ]
-            // confirmMarketOrder: [
-            //     {translate: "confirm_yes"},
-            //     {translate: "confirm_no"}
-            // ]
         };
 
         this.settings = Immutable.Map(
             merge(this.defaultSettings.toJS(), ss.get("settings_v3"))
         );
+
+        this.settings = this.settings.set("themes", "midnightTheme");
+
         if (this.settings.get("themes") === "olDarkTheme") {
             this.settings = this.settings.set("themes", "midnightTheme");
         }

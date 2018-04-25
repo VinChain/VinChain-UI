@@ -28,16 +28,16 @@ function errorLoading(err) {
 
 const routes = (
     <Route path="/" component={App} onEnter={willTransitionTo}>
-        <IndexRedirect to="/dashboard" />
+        <IndexRedirect to="/explorer/blocks" />
         <Route path="/auth/:data" component={Auth} />
-        <Route
-            path="/dashboard"
-            getComponent={(location, cb) => {
-                System.import("components/Dashboard/DashboardPage")
-                    .then(loadRoute(cb))
-                    .catch(errorLoading);
-            }}
-        />
+        {/*<Route*/}
+        {/*path="/dashboard"*/}
+        {/*getComponent={(location, cb) => {*/}
+        {/*System.import("components/Dashboard/DashboardPage")*/}
+        {/*.then(loadRoute(cb))*/}
+        {/*.catch(errorLoading);*/}
+        {/*}}*/}
+        {/*/>*/}
         <Route
             path="explorer"
             getComponent={(location, cb) => {
@@ -46,14 +46,14 @@ const routes = (
                     .catch(errorLoading);
             }}
         />
-        <Route
-            path="/explorer/fees"
-            getComponent={(location, cb) => {
-                System.import("components/Explorer/FeesContainer")
-                    .then(loadRoute(cb))
-                    .catch(errorLoading);
-            }}
-        />
+        {/*<Route*/}
+        {/*path="/explorer/fees"*/}
+        {/*getComponent={(location, cb) => {*/}
+        {/*System.import("components/Explorer/FeesContainer")*/}
+        {/*.then(loadRoute(cb))*/}
+        {/*.catch(errorLoading);*/}
+        {/*}}*/}
+        {/*/>*/}
         <Route
             path="/explorer/blocks"
             getComponent={(location, cb) => {
