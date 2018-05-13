@@ -3,7 +3,7 @@
 As most crypto currencies, Graphene makes use of a blockchain to update
 participants about transfers and market activities. Since blocks always refer to
 the previous block, we get a chain of blocks (blockchain) that contains all
-transactions every made in the network. Because the blockchain is a publicly
+transactions made in the network. Because the blockchain is a publicly
 accessible and auditable ledger, everyone can take a closer look and verify
 transfers as well as market orders and order books.
 
@@ -14,7 +14,7 @@ audit.
 
 Who exactly is allows to *produce* a block at which time instant is defined by a
 consensus mechanism called *Delegated Proof of Stake*. In essence, the
-shareholders of BitShares (holders of the BTS token) can cast a vote for their
+shareholders of VinChain (holders of the VIN token) can cast a vote for their
 preferred block producers on the blockchain. Those so called *witnesses* with
 the most votes are allowed to produce blocks.
 

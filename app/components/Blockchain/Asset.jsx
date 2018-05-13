@@ -151,7 +151,9 @@ class Asset extends React.Component {
 
     _assetType(asset) {
         return "bitasset" in asset
-            ? asset.bitasset.is_prediction_market ? "Prediction" : "Smart"
+            ? asset.bitasset.is_prediction_market
+                ? "Prediction"
+                : "Smart"
             : "Simple";
     }
 
@@ -254,7 +256,9 @@ class Asset extends React.Component {
         const core_asset = ChainStore.getAsset("1.3.0");
         let preferredMarket = description.market
             ? description.market
-            : core_asset ? core_asset.get("symbol") : "BTS";
+            : core_asset
+                ? core_asset.get("symbol")
+                : "BTS";
         if ("bitasset" in asset && asset.bitasset.is_prediction_market) {
             preferredMarket = ChainStore.getAsset(
                 asset.bitasset.options.short_backing_asset
@@ -287,12 +291,12 @@ class Asset extends React.Component {
                     hide_issuer="true"
                 />
                 {short_name ? <p>{short_name}</p> : null}
-                <Link
-                    className="button market-button"
-                    to={`/market/${asset.symbol}_${preferredMarket}`}
-                >
-                    <Translate content="exchange.market" />
-                </Link>
+                {/*<Link*/}
+                {/*className="button market-button"*/}
+                {/*to={`/market/${asset.symbol}_${preferredMarket}`}*/}
+                {/*>*/}
+                {/*<Translate content="exchange.market" />*/}
+                {/*</Link>*/}
             </div>
         );
     }
@@ -1129,9 +1133,9 @@ class Asset extends React.Component {
                             </div>
                         </div>
                         <div className="grid-block small-up-1 medium-up-2">
-                            <div className="grid-content">
-                                {this.renderFeePool(asset)}
-                            </div>
+                            {/*<div className="grid-content">*/}
+                            {/*{this.renderFeePool(asset)}*/}
+                            {/*</div>*/}
                             <div className="grid-content">
                                 {priceFeed
                                     ? this.renderPermissions(asset)

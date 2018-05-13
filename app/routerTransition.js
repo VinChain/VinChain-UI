@@ -181,7 +181,7 @@ const willTransitionTo = (
                                         "/auth/"
                                     ) === 0
                                 ) {
-                                    replaceState("/dashboard");
+                                    replaceState("/explorer/blocks");
                                 }
                             })
                             .then(() => {
@@ -286,7 +286,7 @@ const willTransitionTo = (
                         );
                         if (error.name === "InvalidStateError") {
                             if (__ELECTRON__) {
-                                replaceState("/dashboard");
+                                replaceState("/explorer/blocks");
                             } else {
                                 alert(
                                     "Can't access local storage.\nPlease make sure your browser is not in private/incognito mode."

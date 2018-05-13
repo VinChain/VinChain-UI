@@ -528,7 +528,7 @@ class CreateAccountPassword extends React.Component {
                 <div
                     style={{width: "100%"}}
                     onClick={() => {
-                        this.context.router.push("/dashboard");
+                        this.context.router.push("/explorer/blocks");
                     }}
                     className="button"
                 >

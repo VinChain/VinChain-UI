@@ -240,9 +240,8 @@ class ImportKeys extends Component {
                                 filter_status[
                                     filter_status.length - 1
                                 ] = status;
-                            else
-                                // new account
-                                filter_status.push(status);
+                            // new account
+                            else filter_status.push(status);
                         }
                         update_state({genesis_filter_status: filter_status});
                     });
@@ -604,14 +603,16 @@ class ImportKeys extends Component {
         this.setState(
             {
                 key_text_message:
-                    "Found " +
-                    (!count ? "" : count + " valid") +
-                    (!invalid_count
-                        ? ""
-                        : " and " + invalid_count + " invalid") +
-                    " key" +
-                    (count > 1 || invalid_count > 1 ? "s" : "") +
-                    "."
+                    !count && !invalid_count
+                        ? "Invalid private key."
+                        : "Found " +
+                          (!count ? "" : count + " valid") +
+                          (!invalid_count
+                              ? ""
+                              : " and " + invalid_count + " invalid") +
+                          " key" +
+                          (count > 1 || invalid_count > 1 ? "s" : "") +
+                          "."
             },
             () => this.updateOnChange()
         );

@@ -138,7 +138,7 @@ class RecentTransactions extends React.Component {
             var today = new Date();
             saveAs(
                 blob,
-                "btshist-" +
+                "vinhist-" +
                     today.getFullYear() +
                     "-" +
                     ("0" + (today.getMonth() + 1)).slice(-2) +

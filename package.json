@@ -1,14 +1,10 @@
 {
-    "name": "VinChain-Waallet",
-    "version": "2.0.180402",
+    "name": "VinChain-Wallet",
+    "version": "1.0.0",
     "description": "Advanced wallet interface for the Vinchain blockchain.",
     "homepage": "https://github.com/VinChain/VinChain-UI",
-    "author": "Sigve Kvalsvik <kvalsvik.crypto@gmail.com>",
-    "contributors": [
-        "James Calfee",
-        "Dan Larimer",
-        "Valentine Zavgorodnev <valentine.zavgorodnev@gmail.com>"
-    ],
+    "author": "Vinchain.io <info@vinchain.io>",
+    "contributors": [],
     "license": "MIT",
     "engines": {
         "node": ">=9.x",

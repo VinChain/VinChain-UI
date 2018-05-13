@@ -160,7 +160,7 @@ class Footer extends React.Component {
 
         let block_height = this.props.dynGlobalObject.get("head_block_number");
         let version_match = APP_VERSION.match(/2\.0\.(\d\w+)/);
-        let version = "O.1.0";
+        let version = "1.0";
         let updateStyles = {display: "inline-block", verticalAlign: "top"};
         let logoProps = {};
 
@@ -203,7 +203,9 @@ class Footer extends React.Component {
                                 )}
                                 <span style={updateStyles}>
                                     <Translate content="footer.title" />
-                                    <span className="version">{version}</span>
+                                    <span className="version">
+                                        &nbsp;{version}
+                                    </span>
                                 </span>
 
                                 {state.newVersion && (

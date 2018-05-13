@@ -337,55 +337,55 @@ class DashboardList extends React.Component {
                                     {accountName}
                                 </span>
                             </td>
-                            <td
-                                className="clickable"
-                                onClick={this._goAccount.bind(
-                                    this,
-                                    accountName,
-                                    1
-                                )}
-                                style={{textAlign: "right"}}
-                            >
-                                <TotalBalanceValue
-                                    noTip
-                                    balances={[]}
-                                    openOrders={openOrders}
-                                />
-                            </td>
-                            {width >= 750 ? (
-                                <td
-                                    className="clickable"
-                                    onClick={this._goAccount.bind(
-                                        this,
-                                        accountName,
-                                        2
-                                    )}
-                                    style={{textAlign: "right"}}
-                                >
-                                    <TotalBalanceValue
-                                        noTip
-                                        balances={[]}
-                                        collateral={collateral}
-                                    />
-                                </td>
-                            ) : null}
-                            {width >= 1200 ? (
-                                <td
-                                    className="clickable"
-                                    onClick={this._goAccount.bind(
-                                        this,
-                                        accountName,
-                                        2
-                                    )}
-                                    style={{textAlign: "right"}}
-                                >
-                                    <TotalBalanceValue
-                                        noTip
-                                        balances={[]}
-                                        debt={debt}
-                                    />
-                                </td>
-                            ) : null}
+                            {/*<td*/}
+                            {/*className="clickable"*/}
+                            {/*onClick={this._goAccount.bind(*/}
+                            {/*this,*/}
+                            {/*accountName,*/}
+                            {/*1*/}
+                            {/*)}*/}
+                            {/*style={{textAlign: "right"}}*/}
+                            {/*>*/}
+                            {/*<TotalBalanceValue*/}
+                            {/*noTip*/}
+                            {/*balances={[]}*/}
+                            {/*openOrders={openOrders}*/}
+                            {/*/>*/}
+                            {/*</td>*/}
+                            {/*{width >= 750 ? (*/}
+                            {/*<td*/}
+                            {/*className="clickable"*/}
+                            {/*onClick={this._goAccount.bind(*/}
+                            {/*this,*/}
+                            {/*accountName,*/}
+                            {/*2*/}
+                            {/*)}*/}
+                            {/*style={{textAlign: "right"}}*/}
+                            {/*>*/}
+                            {/*<TotalBalanceValue*/}
+                            {/*noTip*/}
+                            {/*balances={[]}*/}
+                            {/*collateral={collateral}*/}
+                            {/*/>*/}
+                            {/*</td>*/}
+                            {/*) : null}*/}
+                            {/*{width >= 1200 ? (*/}
+                            {/*<td*/}
+                            {/*className="clickable"*/}
+                            {/*onClick={this._goAccount.bind(*/}
+                            {/*this,*/}
+                            {/*accountName,*/}
+                            {/*2*/}
+                            {/*)}*/}
+                            {/*style={{textAlign: "right"}}*/}
+                            {/*>*/}
+                            {/*<TotalBalanceValue*/}
+                            {/*noTip*/}
+                            {/*balances={[]}*/}
+                            {/*debt={debt}*/}
+                            {/*/>*/}
+                            {/*</td>*/}
+                            {/*) : null}*/}
                             <td
                                 className="clickable"
                                 onClick={this._goAccount.bind(
@@ -498,19 +498,19 @@ class DashboardList extends React.Component {
                                 >
                                     <Translate content="header.account" />
                                 </th>
-                                <th style={{textAlign: "right"}}>
-                                    <Translate content="account.open_orders" />
-                                </th>
-                                {width >= 750 ? (
-                                    <th style={{textAlign: "right"}}>
-                                        <Translate content="account.as_collateral" />
-                                    </th>
-                                ) : null}
-                                {width >= 1200 ? (
-                                    <th style={{textAlign: "right"}}>
-                                        <Translate content="transaction.borrow_amount" />
-                                    </th>
-                                ) : null}
+                                {/*<th style={{textAlign: "right"}}>*/}
+                                {/*<Translate content="account.open_orders" />*/}
+                                {/*</th>*/}
+                                {/*{width >= 750 ? (*/}
+                                {/*<th style={{textAlign: "right"}}>*/}
+                                {/*<Translate content="account.as_collateral" />*/}
+                                {/*</th>*/}
+                                {/*) : null}*/}
+                                {/*{width >= 1200 ? (*/}
+                                {/*<th style={{textAlign: "right"}}>*/}
+                                {/*<Translate content="transaction.borrow_amount" />*/}
+                                {/*</th>*/}
+                                {/*) : null}*/}
                                 <th
                                     style={{
                                         textAlign: "right",
@@ -530,7 +530,7 @@ class DashboardList extends React.Component {
                                 style={{backgroundColor: "transparent"}}
                                 key="hidden"
                             >
-                                <td colSpan="8">
+                                <td colSpan="4">
                                     {counterpart.translate(
                                         "account.hidden_accounts_row"
                                     )}:

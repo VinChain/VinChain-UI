@@ -8,16 +8,16 @@ from a backup you will also need to provide the passphrase (password) because **
 are encrypted**. Hence, if you either lose your wallet or your passphrase you
 will be unable to access any of your funds again!
 
-You can create a backup from [Settings -> Backup](/settings).
+You can create a backup [Settings -> Backup](/settings).
 
 - Store this backup in at least two secure locations only accessible by you
-- The backup is encrypted with your passphrase/password so do not store your passwrod in the same location
+- The backup is encrypted with your passphrase/password so do not store your password in the same location
 
 ## Advanced Users Only
 
 ### Brainkey
 
-> If you never manually imported an account key into your wallet, you can
+> If you have never manually imported an account key into your wallet, you can
 alternatively backup your accounts and their funds by exporting the *brainkey*,
 a string of words from which your keys are derived deterministically.
 

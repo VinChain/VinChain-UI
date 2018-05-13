@@ -416,182 +416,182 @@ class AccountOverview extends React.Component {
                             <BalanceComponent balance={balance} hide_asset />
                         ) : null}
                     </td>
-                    <td
-                        style={{textAlign: "right"}}
-                        className="column-hide-small"
-                    >
-                        <EquivalentPrice
-                            refCallback={c => {
-                                if (c && c.refs.bound_component)
-                                    this.priceRefs[asset.get("symbol")] =
-                                        c.refs.bound_component;
-                            }}
-                            fromAsset={asset.get("id")}
-                            pulsate={{reverse: true, fill: "forwards"}}
-                            hide_symbols
-                        />
-                    </td>
-                    <td
-                        style={{textAlign: "right"}}
-                        className="column-hide-small"
-                    >
-                        <Market24HourChangeComponent
-                            refCallback={c => {
-                                if (c && c.refs.bound_component)
-                                    this.changeRefs[asset.get("symbol")] =
-                                        c.refs.bound_component;
-                            }}
-                            base={asset.get("id")}
-                            quote={preferredUnit}
-                            marketId={asset.get("symbol") + "_" + preferredUnit}
-                            hide_symbols
-                        />
-                    </td>
-                    <td
-                        style={{textAlign: "right"}}
-                        className="column-hide-small"
-                    >
-                        {hasBalance || hasOnOrder ? (
-                            <BalanceValueComponent
-                                balance={balance}
-                                toAsset={preferredUnit}
-                                hide_asset
-                                pulsate={{reverse: true, fill: "forwards"}}
-                                refCallback={c => {
-                                    if (c && c.refs.bound_component)
-                                        this.valueRefs[asset.get("symbol")] =
-                                            c.refs.bound_component;
-                                }}
-                            />
-                        ) : null}
-                    </td>
-                    {showAssetPercent ? (
-                        <td style={{textAlign: "right"}}>
-                            {hasBalance ? (
-                                <BalanceComponent
-                                    balance={balance}
-                                    asPercentage={true}
-                                />
-                            ) : null}
-                        </td>
-                    ) : null}
+                    {/*<td*/}
+                    {/*style={{textAlign: "right"}}*/}
+                    {/*className="column-hide-small"*/}
+                    {/*>*/}
+                    {/*<EquivalentPrice*/}
+                    {/*refCallback={c => {*/}
+                    {/*if (c && c.refs.bound_component)*/}
+                    {/*this.priceRefs[asset.get("symbol")] =*/}
+                    {/*c.refs.bound_component;*/}
+                    {/*}}*/}
+                    {/*fromAsset={asset.get("id")}*/}
+                    {/*pulsate={{reverse: true, fill: "forwards"}}*/}
+                    {/*hide_symbols*/}
+                    {/*/>*/}
+                    {/*</td>*/}
+                    {/*<td*/}
+                    {/*style={{textAlign: "right"}}*/}
+                    {/*className="column-hide-small"*/}
+                    {/*>*/}
+                    {/*<Market24HourChangeComponent*/}
+                    {/*refCallback={c => {*/}
+                    {/*if (c && c.refs.bound_component)*/}
+                    {/*this.changeRefs[asset.get("symbol")] =*/}
+                    {/*c.refs.bound_component;*/}
+                    {/*}}*/}
+                    {/*base={asset.get("id")}*/}
+                    {/*quote={preferredUnit}*/}
+                    {/*marketId={asset.get("symbol") + "_" + preferredUnit}*/}
+                    {/*hide_symbols*/}
+                    {/*/>*/}
+                    {/*</td>*/}
+                    {/*<td*/}
+                    {/*style={{textAlign: "right"}}*/}
+                    {/*className="column-hide-small"*/}
+                    {/*>*/}
+                    {/*{hasBalance || hasOnOrder ? (*/}
+                    {/*<BalanceValueComponent*/}
+                    {/*balance={balance}*/}
+                    {/*toAsset={preferredUnit}*/}
+                    {/*hide_asset*/}
+                    {/*pulsate={{reverse: true, fill: "forwards"}}*/}
+                    {/*refCallback={c => {*/}
+                    {/*if (c && c.refs.bound_component)*/}
+                    {/*this.valueRefs[asset.get("symbol")] =*/}
+                    {/*c.refs.bound_component;*/}
+                    {/*}}*/}
+                    {/*/>*/}
+                    {/*) : null}*/}
+                    {/*</td>*/}
+                    {/*{showAssetPercent ? (*/}
+                    {/*<td style={{textAlign: "right"}}>*/}
+                    {/*{hasBalance ? (*/}
+                    {/*<BalanceComponent*/}
+                    {/*balance={balance}*/}
+                    {/*asPercentage={true}*/}
+                    {/*/>*/}
+                    {/*) : null}*/}
+                    {/*</td>*/}
+                    {/*) : null}*/}
                     <td>{transferLink}</td>
-                    <td>
-                        {this._renderBuy(
-                            asset.get("symbol"),
-                            canBuy,
-                            assetName,
-                            emptyCell,
-                            balanceObject.get("balance")
-                        )}
-                    </td>
-                    <td>
-                        {canDeposit && this.props.isMyAccount ? (
-                            <span>
-                                <Icon
-                                    style={{cursor: "pointer"}}
-                                    name="deposit"
-                                    className="icon-14x"
-                                    onClick={this._showDepositModal.bind(
-                                        this,
-                                        assetName
-                                    )}
-                                />
-                            </span>
-                        ) : (
-                            emptyCell
-                        )}
-                    </td>
-                    <td>
-                        {canWithdraw && this.props.isMyAccount ? (
-                            <span>
-                                <a
-                                    className={!canWithdraw ? "disabled" : ""}
-                                    onClick={
-                                        canWithdraw
-                                            ? this._showDepositWithdraw.bind(
-                                                  this,
-                                                  "withdraw_modal_new",
-                                                  assetName,
-                                                  false
-                                              )
-                                            : () => {}
-                                    }
-                                >
-                                    <Icon
-                                        name="withdraw"
-                                        className="icon-14px"
-                                    />
-                                </a>
-                            </span>
-                        ) : (
-                            emptyCell
-                        )}
-                    </td>
-                    <td>{directMarketLink}</td>
-                    <td>
-                        {isBitAsset ? (
-                            <div
-                                className="inline-block"
-                                data-place="bottom"
-                                data-tip={counterpart.translate(
-                                    "tooltip.borrow",
-                                    {asset: symbol}
-                                )}
-                            >
-                                {borrowLink}
-                                {borrowModal}
-                            </div>
-                        ) : (
-                            emptyCell
-                        )}
-                    </td>
-                    <td>
-                        {isBitAsset ? (
-                            <div
-                                className="inline-block"
-                                data-place="bottom"
-                                data-tip={counterpart.translate(
-                                    "tooltip.settle",
-                                    {asset: symbol}
-                                )}
-                            >
-                                {settleLink}
-                            </div>
-                        ) : (
-                            emptyCell
-                        )}
-                    </td>
-                    <td
-                        style={{textAlign: "center"}}
-                        className="column-hide-small"
-                        data-place="bottom"
-                        data-tip={counterpart.translate(
-                            "tooltip." +
-                                (includeAsset ? "hide_asset" : "show_asset")
-                        )}
-                    >
-                        <a
-                            style={{marginRight: 0}}
-                            className={
-                                includeAsset ? "order-cancel" : "action-plus"
-                            }
-                            onClick={this._hideAsset.bind(
-                                this,
-                                asset_type,
-                                includeAsset
-                            )}
-                        >
-                            <Icon
-                                name={
-                                    includeAsset
-                                        ? "cross-circle"
-                                        : "plus-circle"
-                                }
-                                className="icon-14px"
-                            />
-                        </a>
-                    </td>
+                    {/*<td>*/}
+                    {/*{this._renderBuy(*/}
+                    {/*asset.get("symbol"),*/}
+                    {/*canBuy,*/}
+                    {/*assetName,*/}
+                    {/*emptyCell,*/}
+                    {/*balanceObject.get("balance")*/}
+                    {/*)}*/}
+                    {/*</td>*/}
+                    {/*<td>*/}
+                    {/*{canDeposit && this.props.isMyAccount ? (*/}
+                    {/*<span>*/}
+                    {/*<Icon*/}
+                    {/*style={{cursor: "pointer"}}*/}
+                    {/*name="deposit"*/}
+                    {/*className="icon-14x"*/}
+                    {/*onClick={this._showDepositModal.bind(*/}
+                    {/*this,*/}
+                    {/*assetName*/}
+                    {/*)}*/}
+                    {/*/>*/}
+                    {/*</span>*/}
+                    {/*) : (*/}
+                    {/*emptyCell*/}
+                    {/*)}*/}
+                    {/*</td>*/}
+                    {/*<td>*/}
+                    {/*{canWithdraw && this.props.isMyAccount ? (*/}
+                    {/*<span>*/}
+                    {/*<a*/}
+                    {/*className={!canWithdraw ? "disabled" : ""}*/}
+                    {/*onClick={*/}
+                    {/*canWithdraw*/}
+                    {/*? this._showDepositWithdraw.bind(*/}
+                    {/*this,*/}
+                    {/*"withdraw_modal_new",*/}
+                    {/*assetName,*/}
+                    {/*false*/}
+                    {/*)*/}
+                    {/*: () => {}*/}
+                    {/*}*/}
+                    {/*>*/}
+                    {/*<Icon*/}
+                    {/*name="withdraw"*/}
+                    {/*className="icon-14px"*/}
+                    {/*/>*/}
+                    {/*</a>*/}
+                    {/*</span>*/}
+                    {/*) : (*/}
+                    {/*emptyCell*/}
+                    {/*)}*/}
+                    {/*</td>*/}
+                    {/*<td>{directMarketLink}</td>*/}
+                    {/*<td>*/}
+                    {/*{isBitAsset ? (*/}
+                    {/*<div*/}
+                    {/*className="inline-block"*/}
+                    {/*data-place="bottom"*/}
+                    {/*data-tip={counterpart.translate(*/}
+                    {/*"tooltip.borrow",*/}
+                    {/*{asset: symbol}*/}
+                    {/*)}*/}
+                    {/*>*/}
+                    {/*{borrowLink}*/}
+                    {/*{borrowModal}*/}
+                    {/*</div>*/}
+                    {/*) : (*/}
+                    {/*emptyCell*/}
+                    {/*)}*/}
+                    {/*</td>*/}
+                    {/*<td>*/}
+                    {/*{isBitAsset ? (*/}
+                    {/*<div*/}
+                    {/*className="inline-block"*/}
+                    {/*data-place="bottom"*/}
+                    {/*data-tip={counterpart.translate(*/}
+                    {/*"tooltip.settle",*/}
+                    {/*{asset: symbol}*/}
+                    {/*)}*/}
+                    {/*>*/}
+                    {/*{settleLink}*/}
+                    {/*</div>*/}
+                    {/*) : (*/}
+                    {/*emptyCell*/}
+                    {/*)}*/}
+                    {/*</td>*/}
+                    {/*<td*/}
+                    {/*style={{textAlign: "center"}}*/}
+                    {/*className="column-hide-small"*/}
+                    {/*data-place="bottom"*/}
+                    {/*data-tip={counterpart.translate(*/}
+                    {/*"tooltip." +*/}
+                    {/*(includeAsset ? "hide_asset" : "show_asset")*/}
+                    {/*)}*/}
+                    {/*>*/}
+                    {/*<a*/}
+                    {/*style={{marginRight: 0}}*/}
+                    {/*className={*/}
+                    {/*includeAsset ? "order-cancel" : "action-plus"*/}
+                    {/*}*/}
+                    {/*onClick={this._hideAsset.bind(*/}
+                    {/*this,*/}
+                    {/*asset_type,*/}
+                    {/*includeAsset*/}
+                    {/*)}*/}
+                    {/*>*/}
+                    {/*<Icon*/}
+                    {/*name={*/}
+                    {/*includeAsset*/}
+                    {/*? "cross-circle"*/}
+                    {/*: "plus-circle"*/}
+                    {/*}*/}
+                    {/*className="icon-14px"*/}
+                    {/*/>*/}
+                    {/*</a>*/}
+                    {/*</td>*/}
                 </tr>
             );
         });
@@ -991,13 +991,14 @@ class AccountOverview extends React.Component {
         includedBalances.push(
             <tr key="portfolio" className="total-value">
                 <td style={{textAlign: "left"}}>{totalValueText}</td>
-                <td />
-                <td className="column-hide-small" />
-                <td />
+
+                {/*<td className="column-hide-small" />*/}
+                {/*<td />*/}
                 <td className="column-hide-small" style={{textAlign: "right"}}>
                     {portfolioActiveAssetsBalance}
                 </td>
-                <td colSpan="9" />
+                <td />
+                {/*<td colSpan="9" />*/}
             </tr>
         );
 
@@ -1069,28 +1070,28 @@ class AccountOverview extends React.Component {
                                         >
                                             <Translate content="account.hide_hidden" />
                                         </div>
-                                        {hiddenBalances.length ? (
-                                            <div
-                                                className={cnames(
-                                                    "inline-block",
-                                                    {
-                                                        inactive:
-                                                            shownAssets !=
-                                                            "hidden"
-                                                    }
-                                                )}
-                                                onClick={
-                                                    shownAssets != "hidden"
-                                                        ? this._changeShownAssets.bind(
-                                                              this,
-                                                              "hidden"
-                                                          )
-                                                        : () => {}
-                                                }
-                                            >
-                                                <Translate content="account.show_hidden" />
-                                            </div>
-                                        ) : null}
+                                        {/*{hiddenBalances.length ? (*/}
+                                        {/*<div*/}
+                                        {/*className={cnames(*/}
+                                        {/*"inline-block",*/}
+                                        {/*{*/}
+                                        {/*inactive:*/}
+                                        {/*shownAssets !=*/}
+                                        {/*"hidden"*/}
+                                        {/*}*/}
+                                        {/*)}*/}
+                                        {/*onClick={*/}
+                                        {/*shownAssets != "hidden"*/}
+                                        {/*? this._changeShownAssets.bind(*/}
+                                        {/*this,*/}
+                                        {/*"hidden"*/}
+                                        {/*)*/}
+                                        {/*: () => {}*/}
+                                        {/*}*/}
+                                        {/*>*/}
+                                        {/*<Translate content="account.show_hidden" />*/}
+                                        {/*</div>*/}
+                                        {/*) : null}*/}
                                         <div
                                             className={cnames("inline-block", {
                                                 inactive:
@@ -1146,49 +1147,49 @@ class AccountOverview extends React.Component {
                                                 >
                                                     <Translate content="account.qty" />
                                                 </th>
-                                                <th
-                                                    onClick={this._toggleSortOrder.bind(
-                                                        this,
-                                                        "priceValue"
-                                                    )}
-                                                    className="column-hide-small clickable"
-                                                    style={{textAlign: "right"}}
-                                                >
-                                                    <Translate content="exchange.price" />{" "}
-                                                    (<AssetName
-                                                        name={preferredUnit}
-                                                    />)
-                                                </th>
-                                                <th
-                                                    onClick={this._toggleSortOrder.bind(
-                                                        this,
-                                                        "changeValue"
-                                                    )}
-                                                    className="column-hide-small clickable"
-                                                    style={{textAlign: "right"}}
-                                                >
-                                                    <Translate content="account.hour_24_short" />
-                                                </th>
-                                                <th
-                                                    onClick={this._toggleSortOrder.bind(
-                                                        this,
-                                                        "totalValue"
-                                                    )}
-                                                    style={{textAlign: "right"}}
-                                                    className="column-hide-small clickable"
-                                                >
-                                                    <TranslateWithLinks
-                                                        noLink
-                                                        string="account.eq_value_header"
-                                                        keys={[
-                                                            {
-                                                                type: "asset",
-                                                                value: preferredUnit,
-                                                                arg: "asset"
-                                                            }
-                                                        ]}
-                                                    />
-                                                </th>
+                                                {/*<th*/}
+                                                {/*onClick={this._toggleSortOrder.bind(*/}
+                                                {/*this,*/}
+                                                {/*"priceValue"*/}
+                                                {/*)}*/}
+                                                {/*className="column-hide-small clickable"*/}
+                                                {/*style={{textAlign: "right"}}*/}
+                                                {/*>*/}
+                                                {/*<Translate content="exchange.price" />{" "}*/}
+                                                {/*(<AssetName*/}
+                                                {/*name={preferredUnit}*/}
+                                                {/*/>)*/}
+                                                {/*</th>*/}
+                                                {/*<th*/}
+                                                {/*onClick={this._toggleSortOrder.bind(*/}
+                                                {/*this,*/}
+                                                {/*"changeValue"*/}
+                                                {/*)}*/}
+                                                {/*className="column-hide-small clickable"*/}
+                                                {/*style={{textAlign: "right"}}*/}
+                                                {/*>*/}
+                                                {/*<Translate content="account.hour_24_short" />*/}
+                                                {/*</th>*/}
+                                                {/*<th*/}
+                                                {/*onClick={this._toggleSortOrder.bind(*/}
+                                                {/*this,*/}
+                                                {/*"totalValue"*/}
+                                                {/*)}*/}
+                                                {/*style={{textAlign: "right"}}*/}
+                                                {/*className="column-hide-small clickable"*/}
+                                                {/*>*/}
+                                                {/*<TranslateWithLinks*/}
+                                                {/*noLink*/}
+                                                {/*string="account.eq_value_header"*/}
+                                                {/*keys={[*/}
+                                                {/*{*/}
+                                                {/*type: "asset",*/}
+                                                {/*value: preferredUnit,*/}
+                                                {/*arg: "asset"*/}
+                                                {/*}*/}
+                                                {/*]}*/}
+                                                {/*/>*/}
+                                                {/*</th>*/}
                                                 {showAssetPercent ? (
                                                     <th
                                                         style={{
@@ -1204,34 +1205,34 @@ class AccountOverview extends React.Component {
                                                 <th>
                                                     <Translate content="header.payments" />
                                                 </th>
-                                                <th>
-                                                    <Translate content="exchange.buy" />
-                                                </th>
-                                                <th>
-                                                    <Translate content="modal.deposit.submit" />
-                                                </th>
-                                                <th>
-                                                    <Translate content="modal.withdraw.submit" />
-                                                </th>
-                                                <th>
-                                                    <Translate content="account.trade" />
-                                                </th>
-                                                <th>
-                                                    <Translate content="exchange.borrow_short" />
-                                                </th>
-                                                <th>
-                                                    <Translate content="account.settle" />
-                                                </th>
-                                                <th className="column-hide-small">
-                                                    <Translate
-                                                        content={
-                                                            shownAssets ==
-                                                            "active"
-                                                                ? "exchange.hide"
-                                                                : "account.perm.show"
-                                                        }
-                                                    />
-                                                </th>
+                                                {/*<th>*/}
+                                                {/*<Translate content="exchange.buy" />*/}
+                                                {/*</th>*/}
+                                                {/*<th>*/}
+                                                {/*<Translate content="modal.deposit.submit" />*/}
+                                                {/*</th>*/}
+                                                {/*<th>*/}
+                                                {/*<Translate content="modal.withdraw.submit" />*/}
+                                                {/*</th>*/}
+                                                {/*<th>*/}
+                                                {/*<Translate content="account.trade" />*/}
+                                                {/*</th>*/}
+                                                {/*<th>*/}
+                                                {/*<Translate content="exchange.borrow_short" />*/}
+                                                {/*</th>*/}
+                                                {/*<th>*/}
+                                                {/*<Translate content="account.settle" />*/}
+                                                {/*</th>*/}
+                                                {/*<th className="column-hide-small">*/}
+                                                {/*<Translate*/}
+                                                {/*content={*/}
+                                                {/*shownAssets ==*/}
+                                                {/*"active"*/}
+                                                {/*? "exchange.hide"*/}
+                                                {/*: "account.perm.show"*/}
+                                                {/*}*/}
+                                                {/*/>*/}
+                                                {/*</th>*/}
                                             </tr>
                                         </thead>
                                         <tbody>

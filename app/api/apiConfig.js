@@ -1,6 +1,5 @@
 export const blockTradesAPIs = {
     BASE: "https://api.blocktrades.us/v2",
-    // BASE_OL: "https://api.blocktrades.us/ol/v2",
     BASE_OL: "https://ol-api1.openledger.info/api/v0/ol/support",
     COINS_LIST: "/coins",
     ACTIVE_WALLETS: "/active-wallets",
@@ -27,12 +26,16 @@ export const widechainAPIs = {
 };
 
 export const settingsAPIs = {
-    DEFAULT_WS_NODE: "ws://82.209.218.170:25025/",
+    DEFAULT_WS_NODE: "wss://node.vinchain.io:11011/",
     WS_NODE_LIST: [
-        {url: "ws://82.209.218.170:25025/", location: "Locally hosted"}
+        {url: "wss://node.vinchain.io:11011/", location: "Vinchain Alpha"}
+        // {url: "wss://18.205.32.20:11011/", location: "Vinchain Beta"},
+        // {url: "wss://18.205.82.249:11011/", location: "Vinchain Gamma"},
+        // {url: "wss://18.184.56.212:11011/", location: "Vinchain Delta"},
+        // {url: "wss://18.197.162.20:11011/", location: "Vinchain Epsilon"},
     ],
-    DEFAULT_FAUCET: "http://82.209.218.170:25080/", // 2017-12-infrastructure worker proposal
-    TESTNET_FAUCET: "http://82.209.218.170:25080/",
+    DEFAULT_FAUCET: "https://wallet.vinchain.io/", // 2017-12-infrastructure worker proposal
+    TESTNET_FAUCET: "https://wallet.vinchain.io/",
     RPC_URL: "https://openledger.info/api/"
 };
 

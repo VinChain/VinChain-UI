@@ -174,25 +174,25 @@ class Accounts extends React.Component {
                                 </div>
                             </div>
                         </Tab>
-                        <Tab title="account.contacts">
-                            <div className="generic-bordered-box">
-                                <div className="box-content">
-                                    <DashboardList
-                                        accounts={contacts}
-                                        passwordAccount={passwordAccount}
-                                        ignoredAccounts={Immutable.List(
-                                            ignored
-                                        )}
-                                        width={width}
-                                        onToggleIgnored={this._onToggleIgnored.bind(
-                                            this
-                                        )}
-                                        showIgnored={showIgnored}
-                                        isContactsList={true}
-                                    />
-                                </div>
-                            </div>
-                        </Tab>
+                        {/*<Tab title="account.contacts">*/}
+                        {/*<div className="generic-bordered-box">*/}
+                        {/*<div className="box-content">*/}
+                        {/*<DashboardList*/}
+                        {/*accounts={contacts}*/}
+                        {/*passwordAccount={passwordAccount}*/}
+                        {/*ignoredAccounts={Immutable.List(*/}
+                        {/*ignored*/}
+                        {/*)}*/}
+                        {/*width={width}*/}
+                        {/*onToggleIgnored={this._onToggleIgnored.bind(*/}
+                        {/*this*/}
+                        {/*)}*/}
+                        {/*showIgnored={showIgnored}*/}
+                        {/*isContactsList={true}*/}
+                        {/*/>*/}
+                        {/*</div>*/}
+                        {/*</div>*/}
+                        {/*</Tab>*/}
                         <Tab title="account.recent">
                             <RecentTransactions
                                 accountsList={myActiveAccounts}
