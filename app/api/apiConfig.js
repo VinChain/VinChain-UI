@@ -28,11 +28,11 @@ export const widechainAPIs = {
 export const settingsAPIs = {
     DEFAULT_WS_NODE: "wss://node.vinchain.io:11011/",
     WS_NODE_LIST: [
-        {url: "wss://node.vinchain.io:11011/", location: "Vinchain Alpha"}
-        // {url: "wss://18.205.32.20:11011/", location: "Vinchain Beta"},
-        // {url: "wss://18.205.82.249:11011/", location: "Vinchain Gamma"},
-        // {url: "wss://18.184.56.212:11011/", location: "Vinchain Delta"},
-        // {url: "wss://18.197.162.20:11011/", location: "Vinchain Epsilon"},
+        {url: "wss://node.vinchain.io:11011/", location: "VinChain Node"},
+        {url: "wss://node.abetter.bid:11011/", location: "Abetter.bid Node"},
+        {url: "wss://node.vininspect.com:11011/", location: "VinInspect Node"},
+        {url: "wss://node.epicvin.com:11011/", location: "EpicVin Node"},
+        {url: "wss://node.vingurus.com:11011/", location: "VinGurus Node"}
     ],
     DEFAULT_FAUCET: "https://wallet.vinchain.io/", // 2017-12-infrastructure worker proposal
     TESTNET_FAUCET: "https://wallet.vinchain.io/",
