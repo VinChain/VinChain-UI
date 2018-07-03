@@ -567,9 +567,9 @@
             "name_is_taken": "Account name is already taken.",
             "not_found": "Account not found.",
             "premium_name_faucet":
-                "Incorrect wallet name. Please enter a regular name containing least one dash, a number or no vowels",
+                "Incorrect wallet name. Please enter a regular name containing least one dash, a number or no vowels (Examples, john-smith, johnsmith1, jhnsmth)",
             "premium_name_warning":
-                "This is a premium name which is more expensive than a name containing a dash (-) or a number."
+                "Incorrect wallet name. Please enter a regular name containing least one dash, a number or no vowels (Examples, john-smith, johnsmith1, jhnsmth)"
         },
         "propose_from": "Propose From",
         "settle": "Settle",

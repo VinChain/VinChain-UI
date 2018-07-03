@@ -1,6 +1,6 @@
 {
     "name": "VinChain-Wallet",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Advanced wallet interface for the Vinchain blockchain.",
     "homepage": "https://github.com/VinChain/VinChain-UI",
     "author": "Vinchain.io <info@vinchain.io>",
