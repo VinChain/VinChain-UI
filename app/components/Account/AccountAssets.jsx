@@ -144,21 +144,6 @@ class AccountAssets extends React.Component {
         });
     }
 
-    _reserveButtonClick(assetId, e) {
-        e.preventDefault();
-        this.setState({reserve: assetId});
-        ZfApi.publish("reserve_asset", "open");
-    }
-
-    _reserveAsset(account_id, e) {
-        e.preventDefault();
-        ZfApi.publish("reserve_asset", "close");
-        let {issue} = this.state;
-        let asset = this.props.assets.get(issue.asset_id);
-        issue.amount *= utils.get_asset_precision(asset.precision);
-        AssetActions.issueAsset(account_id, issue);
-    }
-
     _issueButtonClick(asset_id, symbol, e) {
         e.preventDefault();
         let {issue} = this.state;
@@ -278,20 +263,6 @@ class AccountAssets extends React.Component {
                         </td>
 
                         <td>
-                            {!asset.bitasset_data_id ? (
-                                <button
-                                    onClick={this._reserveButtonClick.bind(
-                                        this,
-                                        asset.id
-                                    )}
-                                    className="button"
-                                >
-                                    <Translate content="transaction.trxTypes.asset_reserve" />
-                                </button>
-                            ) : null}
-                        </td>
-
-                        <td>
                             <button
                                 onClick={this._editButtonClick.bind(
                                     this,
@@ -400,20 +371,23 @@ AccountAssets = AssetWrapper(AccountAssets, {
     withDynamic: true
 });
 
-export default connect(AccountAssets, {
-    listenTo() {
-        return [AssetStore];
-    },
-    getProps(props) {
-        let assets = Map(),
-            assetsList = List();
-        if (props.account.get("assets", []).size) {
-            props.account.get("assets", []).forEach(id => {
-                assetsList = assetsList.push(id);
-            });
-        } else {
-            assets = AssetStore.getState().assets;
+export default connect(
+    AccountAssets,
+    {
+        listenTo() {
+            return [AssetStore];
+        },
+        getProps(props) {
+            let assets = Map(),
+                assetsList = List();
+            if (props.account.get("assets", []).size) {
+                props.account.get("assets", []).forEach(id => {
+                    assetsList = assetsList.push(id);
+                });
+            } else {
+                assets = AssetStore.getState().assets;
+            }
+            return {assets, assetsList};
         }
-        return {assets, assetsList};
     }
-});
+);

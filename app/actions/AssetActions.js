@@ -261,8 +261,8 @@ class AssetActions {
                     flags: flags,
                     whitelist_authorities: auths.whitelist_authorities.toJS(),
                     blacklist_authorities: auths.blacklist_authorities.toJS(),
-                    whitelist_markets: auths.whitelist_markets.toJS(),
-                    blacklist_markets: auths.blacklist_markets.toJS(),
+                    whitelist_markets: [],
+                    blacklist_markets: [],
                     extensions: asset.getIn(["options", "extensions"]),
                     core_exchange_rate: {
                         quote: {

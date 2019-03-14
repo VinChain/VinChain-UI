@@ -22,153 +22,6 @@ let GRAPHENE_MAX_SHARE_SUPPLY = new big(
     assetConstants.GRAPHENE_MAX_SHARE_SUPPLY
 );
 
-class BitAssetOptions extends React.Component {
-    static propTypes = {
-        backingAsset: ChainTypes.ChainAsset.isRequired,
-        isUpdate: React.PropTypes.bool
-    };
-
-    static defaultProps = {
-        isUpdate: false
-    };
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            backingAsset: props.backingAsset.get("symbol"),
-            error: null
-        };
-    }
-
-    _onInputBackingAsset(asset) {
-        this.setState({
-            backingAsset: asset.toUpperCase(),
-            error: null
-        });
-    }
-
-    _onFoundBackingAsset(asset) {
-        if (asset) {
-            if (
-                asset.get("id") === "1.3.0" ||
-                (asset.get("bitasset_data_id") &&
-                    !asset.getIn(["bitasset", "is_prediction_market"]))
-            ) {
-                if (
-                    asset.get("precision") !==
-                    parseInt(this.props.assetPrecision, 10)
-                ) {
-                    this.setState({
-                        error: counterpart.translate(
-                            "account.user_issued_assets.error_precision",
-                            {asset: this.props.assetSymbol}
-                        )
-                    });
-                } else {
-                    this.props.onUpdate("short_backing_asset", asset.get("id"));
-                }
-            } else {
-                this.setState({
-                    error: counterpart.translate(
-                        "account.user_issued_assets.error_invalid"
-                    )
-                });
-            }
-        }
-    }
-
-    render() {
-        let {bitasset_opts} = this.props;
-        let {error} = this.state;
-
-        return (
-            <div className="small-12 grid-content">
-                <label>
-                    <Translate content="account.user_issued_assets.feed_lifetime_sec" />
-                    <input
-                        type="number"
-                        value={bitasset_opts.feed_lifetime_sec / 60}
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "feed_lifetime_sec"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.minimum_feeds" />
-                    <input
-                        type="number"
-                        value={bitasset_opts.minimum_feeds}
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "minimum_feeds"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.force_settlement_delay_sec" />
-                    <input
-                        type="number"
-                        value={bitasset_opts.force_settlement_delay_sec / 60}
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "force_settlement_delay_sec"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.force_settlement_offset_percent" />
-                    <input
-                        type="number"
-                        value={
-                            bitasset_opts.force_settlement_offset_percent /
-                            assetConstants.GRAPHENE_1_PERCENT
-                        }
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "force_settlement_offset_percent"
-                        )}
-                    />
-                </label>
-
-                <label>
-                    <Translate content="account.user_issued_assets.maximum_force_settlement_volume" />
-                    <input
-                        type="number"
-                        value={
-                            bitasset_opts.maximum_force_settlement_volume /
-                            assetConstants.GRAPHENE_1_PERCENT
-                        }
-                        onChange={this.props.onUpdate.bind(
-                            this,
-                            "maximum_force_settlement_volume"
-                        )}
-                    />
-                </label>
-
-                <div className="grid-block no-margin small-12">
-                    <AssetSelector
-                        label="account.user_issued_assets.backing"
-                        onChange={this._onInputBackingAsset.bind(this)}
-                        asset={this.state.backingAsset}
-                        assetInput={this.state.backingAsset}
-                        tabIndex={1}
-                        style={{width: "100%", paddingRight: "10px"}}
-                        onFound={this._onFoundBackingAsset.bind(this)}
-                    />
-                    {error ? (
-                        <div className="content-block has-error">{error}</div>
-                    ) : null}
-                </div>
-            </div>
-        );
-    }
-}
-BitAssetOptions = BindToChainState(BitAssetOptions);
-
 class AccountAssetCreate extends React.Component {
     static propTypes = {
         core: ChainTypes.ChainAsset.isRequired,
@@ -231,17 +84,19 @@ class AccountAssetCreate extends React.Component {
                     amount: 1
                 }
             },
-            bitasset_opts: {
-                feed_lifetime_sec: 60 * 60 * 24,
-                minimum_feeds: 7,
-                force_settlement_delay_sec: 60 * 60 * 24,
-                force_settlement_offset_percent:
-                    1 * assetConstants.GRAPHENE_1_PERCENT,
-                maximum_force_settlement_volume:
-                    20 * assetConstants.GRAPHENE_1_PERCENT,
-                short_backing_asset: "1.3.0"
-            },
-            marketInput: ""
+            bitasset_opts: null,
+            extensions: {
+                payment_core_exchange_rate: {
+                    quote: {
+                        asset_id: null,
+                        amount: 1
+                    },
+                    base: {
+                        asset_id: "1.3.0",
+                        amount: 1
+                    }
+                }
+            }
         };
     }
 
@@ -278,9 +133,6 @@ class AccountAssetCreate extends React.Component {
             isBitAsset
         );
 
-        if (this.state.marketInput !== update.description.market) {
-            update.description.market = "";
-        }
         let description = JSON.stringify(update.description);
 
         AssetActions.createAsset(
@@ -342,14 +194,6 @@ class AccountAssetCreate extends React.Component {
                 update.description[value] = e.target.value;
                 break;
 
-            case "market":
-                update.description[value] = e;
-                break;
-
-            case "visible":
-                update.description[value] = !update.description[value];
-                break;
-
             default:
                 update.description[value] = e.target.value;
                 break;
@@ -359,43 +203,6 @@ class AccountAssetCreate extends React.Component {
             this.forceUpdate();
             this._validateEditFields(update);
         }
-    }
-
-    onChangeBitAssetOpts(value, e) {
-        let {bitasset_opts} = this.state;
-
-        switch (value) {
-            case "force_settlement_offset_percent":
-            case "maximum_force_settlement_volume":
-                bitasset_opts[value] =
-                    parseFloat(e.target.value) *
-                    assetConstants.GRAPHENE_1_PERCENT;
-                break;
-            case "minimum_feeds":
-                bitasset_opts[value] = parseInt(e.target.value, 10);
-                break;
-            case "feed_lifetime_sec":
-            case "force_settlement_delay_sec":
-                console.log(
-                    e.target.value,
-                    parseInt(parseFloat(e.target.value) * 60, 10)
-                );
-                bitasset_opts[value] = parseInt(
-                    parseFloat(e.target.value) * 60,
-                    10
-                );
-                break;
-
-            case "short_backing_asset":
-                bitasset_opts[value] = e;
-                break;
-
-            default:
-                bitasset_opts[value] = e.target.value;
-                break;
-        }
-
-        this.forceUpdate();
     }
 
     _onUpdateInput(value, e) {
@@ -523,10 +330,10 @@ class AccountAssetCreate extends React.Component {
                     : new big(new_state.max_supply)
                           .times(Math.pow(10, new_state.precision))
                           .gt(GRAPHENE_MAX_SHARE_SUPPLY)
-                        ? counterpart.translate(
-                              "account.user_issued_assets.too_large"
-                          )
-                        : null;
+                    ? counterpart.translate(
+                          "account.user_issued_assets.too_large"
+                      )
+                    : null;
         } catch (err) {
             console.log("err:", err);
             errors.max_supply = counterpart.translate(
@@ -583,18 +390,6 @@ class AccountAssetCreate extends React.Component {
         }
     }
 
-    _onInputMarket(asset) {
-        this.setState({
-            marketInput: asset
-        });
-    }
-
-    _onFoundMarketAsset(asset) {
-        if (asset) {
-            this._onUpdateDescription("market", asset.get("symbol"));
-        }
-    }
-
     _onCoreRateChange(type, e) {
         let amount, asset;
         if (type === "quote") {
@@ -622,29 +417,6 @@ class AccountAssetCreate extends React.Component {
             amount: amount,
             asset_id: asset
         };
-        this.forceUpdate();
-    }
-
-    _onToggleBitAsset() {
-        let {update} = this.state;
-        this.state.isBitAsset = !this.state.isBitAsset;
-        if (!this.state.isBitAsset) {
-            this.state.is_prediction_market = false;
-        }
-
-        let {flagBooleans, permissionBooleans} = this._getPermissions(
-            this.state
-        );
-        this.state.flagBooleans = flagBooleans;
-        this.state.permissionBooleans = permissionBooleans;
-
-        this.forceUpdate();
-    }
-
-    _onTogglePM() {
-        this.state.is_prediction_market = !this.state.is_prediction_market;
-        this.state.update.precision = this.props.core.get("precision");
-        this.state.core_exchange_rate.base.asset_id = this.props.core.get("id");
         this.forceUpdate();
     }
 
@@ -711,7 +483,8 @@ class AccountAssetCreate extends React.Component {
                             <td style={{border: "none", width: "80%"}}>
                                 <Translate
                                     content={`account.user_issued_assets.${key}`}
-                                />:
+                                />
+                                :
                             </td>
                             <td style={{border: "none"}}>
                                 <div
@@ -743,16 +516,6 @@ class AccountAssetCreate extends React.Component {
             }
         }
 
-        flags.push(
-            getFlag(
-                "visible",
-                this._onUpdateDescription.bind(this, "visible"),
-                update.description.visible
-                    ? false
-                    : update.description.visible === false ? true : false
-            )
-        );
-
         // Loop over permissions
         let permissions = [];
         for (let key in permissionBooleans) {
@@ -763,7 +526,8 @@ class AccountAssetCreate extends React.Component {
                             <td style={{border: "none", width: "80%"}}>
                                 <Translate
                                     content={`account.user_issued_assets.${key}`}
-                                />:
+                                />
+                                :
                             </td>
                             <td style={{border: "none"}}>
                                 <div
@@ -886,83 +650,6 @@ class AccountAssetCreate extends React.Component {
                                         <Translate content="account.user_issued_assets.precision_warning" />
                                     </div>
 
-                                    <table
-                                        className="table"
-                                        style={{width: "inherit"}}
-                                    >
-                                        <tbody>
-                                            <tr>
-                                                <td style={{border: "none"}}>
-                                                    <Translate
-                                                        content={
-                                                            "account.user_issued_assets.mpa"
-                                                        }
-                                                    />:
-                                                </td>
-                                                <td style={{border: "none"}}>
-                                                    <div
-                                                        className="switch"
-                                                        style={{
-                                                            marginBottom: "10px"
-                                                        }}
-                                                        onClick={this._onToggleBitAsset.bind(
-                                                            this
-                                                        )}
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isBitAsset}
-                                                        />
-                                                        <label />
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                    {isBitAsset ? (
-                                        <table
-                                            className="table"
-                                            style={{width: "inherit"}}
-                                        >
-                                            <tbody>
-                                                <tr>
-                                                    <td
-                                                        style={{border: "none"}}
-                                                    >
-                                                        <Translate
-                                                            content={
-                                                                "account.user_issued_assets.pm"
-                                                            }
-                                                        />:
-                                                    </td>
-                                                    <td
-                                                        style={{border: "none"}}
-                                                    >
-                                                        <div
-                                                            className="switch"
-                                                            style={{
-                                                                marginBottom:
-                                                                    "10px"
-                                                            }}
-                                                            onClick={this._onTogglePM.bind(
-                                                                this
-                                                            )}
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={
-                                                                    is_prediction_market
-                                                                }
-                                                            />
-                                                            <label />
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    ) : null}
-
                                     {/* CER */}
                                     <Translate
                                         component="h3"
@@ -1070,9 +757,8 @@ class AccountAssetCreate extends React.Component {
                                                 </span>
                                                 <span>
                                                     {" "}
-                                                    {update.symbol}/{core.get(
-                                                        "symbol"
-                                                    )}
+                                                    {update.symbol}/
+                                                    {core.get("symbol")}
                                                 </span>
                                             </h5>
                                         </div>
@@ -1090,8 +776,8 @@ class AccountAssetCreate extends React.Component {
                                     </div>
                                     {
                                         <p>
-                                            <Translate content="account.user_issued_assets.approx_fee" />:{" "}
-                                            {createFee}
+                                            <Translate content="account.user_issued_assets.approx_fee" />
+                                            : {createFee}
                                         </p>
                                     }
                                 </div>
@@ -1132,85 +818,8 @@ class AccountAssetCreate extends React.Component {
                                             )}
                                         />
                                     </label>
-
-                                    <Translate
-                                        component="label"
-                                        content="account.user_issued_assets.market"
-                                    />
-                                    <AssetSelector
-                                        label="account.user_issued_assets.name"
-                                        onChange={this._onInputMarket.bind(
-                                            this
-                                        )}
-                                        asset={this.state.marketInput}
-                                        assetInput={this.state.marketInput}
-                                        style={{
-                                            width: "100%",
-                                            paddingRight: "10px"
-                                        }}
-                                        onFound={this._onFoundMarketAsset.bind(
-                                            this
-                                        )}
-                                    />
-
-                                    {is_prediction_market ? (
-                                        <div>
-                                            <Translate
-                                                component="h3"
-                                                content="account.user_issued_assets.condition"
-                                            />
-                                            <label>
-                                                <input
-                                                    type="text"
-                                                    rows="1"
-                                                    value={
-                                                        update.description
-                                                            .condition
-                                                    }
-                                                    onChange={this._onUpdateDescription.bind(
-                                                        this,
-                                                        "condition"
-                                                    )}
-                                                />
-                                            </label>
-
-                                            <Translate
-                                                component="h3"
-                                                content="account.user_issued_assets.expiry"
-                                            />
-                                            <label>
-                                                <input
-                                                    type="date"
-                                                    value={
-                                                        update.description
-                                                            .expiry
-                                                    }
-                                                    onChange={this._onUpdateDescription.bind(
-                                                        this,
-                                                        "expiry"
-                                                    )}
-                                                />
-                                            </label>
-                                        </div>
-                                    ) : null}
                                 </div>
                             </Tab>
-
-                            {isBitAsset ? (
-                                <Tab title="account.user_issued_assets.bitasset_opts">
-                                    <BitAssetOptions
-                                        bitasset_opts={bitasset_opts}
-                                        onUpdate={this.onChangeBitAssetOpts.bind(
-                                            this
-                                        )}
-                                        backingAsset={
-                                            bitasset_opts.short_backing_asset
-                                        }
-                                        assetPrecision={update.precision}
-                                        assetSymbol={update.symbol}
-                                    />
-                                </Tab>
-                            ) : null}
 
                             <Tab title="account.permissions">
                                 <div className="small-12 grid-content">
@@ -1236,94 +845,6 @@ class AccountAssetCreate extends React.Component {
                                             section="flags"
                                         />
                                     </div>
-                                    {permissionBooleans["charge_market_fee"] ? (
-                                        <div>
-                                            <Translate
-                                                component="h3"
-                                                content="account.user_issued_assets.market_fee"
-                                            />
-                                            <table className="table">
-                                                <tbody>
-                                                    <tr>
-                                                        <td
-                                                            style={{
-                                                                border: "none",
-                                                                width: "80%"
-                                                            }}
-                                                        >
-                                                            <Translate content="account.user_issued_assets.charge_market_fee" />:
-                                                        </td>
-                                                        <td
-                                                            style={{
-                                                                border: "none"
-                                                            }}
-                                                        >
-                                                            <div
-                                                                className="switch"
-                                                                style={{
-                                                                    marginBottom:
-                                                                        "10px"
-                                                                }}
-                                                                onClick={this._onFlagChange.bind(
-                                                                    this,
-                                                                    "charge_market_fee"
-                                                                )}
-                                                            >
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={
-                                                                        flagBooleans.charge_market_fee
-                                                                    }
-                                                                />
-                                                                <label />
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            <div
-                                                className={cnames({
-                                                    disabled: !flagBooleans.charge_market_fee
-                                                })}
-                                            >
-                                                <label>
-                                                    <Translate content="account.user_issued_assets.market_fee" />{" "}
-                                                    (%)
-                                                    <input
-                                                        type="number"
-                                                        value={
-                                                            update.market_fee_percent
-                                                        }
-                                                        onChange={this._onUpdateInput.bind(
-                                                            this,
-                                                            "market_fee_percent"
-                                                        )}
-                                                    />
-                                                </label>
-
-                                                <label>
-                                                    <Translate content="account.user_issued_assets.max_market_fee" />{" "}
-                                                    ({update.symbol})
-                                                    <input
-                                                        type="number"
-                                                        value={
-                                                            update.max_market_fee
-                                                        }
-                                                        onChange={this._onUpdateInput.bind(
-                                                            this,
-                                                            "max_market_fee"
-                                                        )}
-                                                    />
-                                                </label>
-                                                {errors.max_market_fee ? (
-                                                    <p className="grid-content has-error">
-                                                        {errors.max_market_fee}
-                                                    </p>
-                                                ) : null}
-                                            </div>
-                                        </div>
-                                    ) : null}
-
                                     <h3>
                                         <Translate content="account.user_issued_assets.flags" />
                                     </h3>
@@ -1340,4 +861,4 @@ class AccountAssetCreate extends React.Component {
 
 AccountAssetCreate = BindToChainState(AccountAssetCreate);
 
-export {AccountAssetCreate, BitAssetOptions};
+export {AccountAssetCreate};
