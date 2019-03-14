@@ -28,9 +28,9 @@ class Assets extends React.Component {
             totalAssets:
                 typeof accountStorage.get("totalAssets") != "object"
                     ? accountStorage.get("totalAssets")
-                    : 3000,
+                    : 1,
             assetsFetched: 0,
-            activeFilter: "market",
+            activeFilter: "user",
             filterUIA: props.filterUIA || "",
             filterMPA: props.filterMPA || "",
             filterPM: props.filterPM || ""
@@ -135,7 +135,9 @@ class Assets extends React.Component {
                         "_" +
                         (description.market
                             ? description.market
-                            : coreAsset ? coreAsset.get("symbol") : "BTS");
+                            : coreAsset
+                            ? coreAsset.get("symbol")
+                            : "BTS");
 
                     return (
                         <tr key={asset.symbol}>
@@ -194,7 +196,9 @@ class Assets extends React.Component {
                         "_" +
                         (description.market
                             ? description.market
-                            : coreAsset ? coreAsset.get("symbol") : "BTS");
+                            : coreAsset
+                            ? coreAsset.get("symbol")
+                            : "BTS");
 
                     return (
                         <tr key={asset.symbol}>
@@ -263,7 +267,9 @@ class Assets extends React.Component {
                         "_" +
                         (description.market
                             ? description.market
-                            : coreAsset ? coreAsset.get("symbol") : "BTS");
+                            : coreAsset
+                            ? coreAsset.get("symbol")
+                            : "BTS");
 
                     return (
                         <tr key={asset.id.split(".")[2]}>

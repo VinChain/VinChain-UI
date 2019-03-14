@@ -23,6 +23,11 @@ class Explorer extends React.Component {
                     translate: "explorer.blocks.title"
                 },
                 {
+                    name: "assets",
+                    link: "/explorer/assets",
+                    translate: "explorer.assets.title"
+                },
+                {
                     name: "accounts",
                     link: "/explorer/accounts",
                     translate: "explorer.accounts.title"

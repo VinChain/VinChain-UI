@@ -578,6 +578,31 @@ class Header extends React.Component {
                 </a>
             );
         }
+        if (
+            active.indexOf("/assets") !== -1 &&
+            active.indexOf("explorer") === -1
+        ) {
+            dynamicMenuItem = (
+                <a
+                    style={{flexFlow: "row"}}
+                    className={cnames({
+                        active: active.indexOf("/assets") !== -1
+                    })}
+                >
+                    <Icon
+                        size="1_5x"
+                        style={{position: "relative", top: 0, left: -8}}
+                        name="assets"
+                        title="icons.assets"
+                    />
+                    <Translate
+                        className="column-hide-small"
+                        component="span"
+                        content="explorer.assets.title"
+                    />
+                </a>
+            );
+        }
         if (active.indexOf("/signedmessages") !== -1) {
             dynamicMenuItem = (
                 <a
@@ -1267,6 +1292,25 @@ class Header extends React.Component {
                                 <li
                                     className={cnames({
                                         active:
+                                            active.indexOf("/assets") !== -1 &&
+                                            active.indexOf("/account/") !== -1
+                                    })}
+                                    onClick={this._onNavigate.bind(
+                                        this,
+                                        `/account/${currentAccount}/assets`
+                                    )}
+                                >
+                                    <div className="table-cell">
+                                        <Icon size="2x" name="assets" />
+                                    </div>
+                                    <div className="table-cell">
+                                        <Translate content="explorer.assets.title" />
+                                    </div>
+                                </li>
+
+                                <li
+                                    className={cnames({
+                                        active:
                                             active.indexOf(
                                                 "/signedmessages"
                                             ) !== -1
@@ -1355,39 +1399,42 @@ class Header extends React.Component {
     }
 }
 
-export default connect(Header, {
-    listenTo() {
-        return [
-            AccountStore,
-            WalletUnlockStore,
-            WalletManagerStore,
-            SettingsStore,
-            GatewayStore
-        ];
-    },
-    getProps() {
-        const chainID = Apis.instance().chain_id;
-        return {
-            backedCoins: GatewayStore.getState().backedCoins,
-            myActiveAccounts: AccountStore.getState().myActiveAccounts,
-            currentAccount:
-                AccountStore.getState().currentAccount ||
-                AccountStore.getState().passwordAccount,
-            passwordAccount: AccountStore.getState().passwordAccount,
-            locked: WalletUnlockStore.getState().locked,
-            current_wallet: WalletManagerStore.getState().current_wallet,
-            lastMarket: SettingsStore.getState().viewSettings.get(
-                `lastMarket${chainID ? "_" + chainID.substr(0, 8) : ""}`
-            ),
-            starredAccounts: AccountStore.getState().starredAccounts,
-            passwordLogin: SettingsStore.getState().settings.get(
-                "passwordLogin"
-            ),
-            currentLocale: SettingsStore.getState().settings.get("locale"),
-            hiddenAssets: SettingsStore.getState().hiddenAssets,
-            settings: SettingsStore.getState().settings,
-            locales: SettingsStore.getState().defaults.locale,
-            contacts: AccountStore.getState().accountContacts
-        };
+export default connect(
+    Header,
+    {
+        listenTo() {
+            return [
+                AccountStore,
+                WalletUnlockStore,
+                WalletManagerStore,
+                SettingsStore,
+                GatewayStore
+            ];
+        },
+        getProps() {
+            const chainID = Apis.instance().chain_id;
+            return {
+                backedCoins: GatewayStore.getState().backedCoins,
+                myActiveAccounts: AccountStore.getState().myActiveAccounts,
+                currentAccount:
+                    AccountStore.getState().currentAccount ||
+                    AccountStore.getState().passwordAccount,
+                passwordAccount: AccountStore.getState().passwordAccount,
+                locked: WalletUnlockStore.getState().locked,
+                current_wallet: WalletManagerStore.getState().current_wallet,
+                lastMarket: SettingsStore.getState().viewSettings.get(
+                    `lastMarket${chainID ? "_" + chainID.substr(0, 8) : ""}`
+                ),
+                starredAccounts: AccountStore.getState().starredAccounts,
+                passwordLogin: SettingsStore.getState().settings.get(
+                    "passwordLogin"
+                ),
+                currentLocale: SettingsStore.getState().settings.get("locale"),
+                hiddenAssets: SettingsStore.getState().hiddenAssets,
+                settings: SettingsStore.getState().settings,
+                locales: SettingsStore.getState().defaults.locale,
+                contacts: AccountStore.getState().accountContacts
+            };
+        }
     }
-});
+);
