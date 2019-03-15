@@ -1347,6 +1347,28 @@ class Header extends React.Component {
                                     </div>
                                 </li>
 
+                                <li
+                                    className={cnames({
+                                        active:
+                                            active.indexOf("/whitelist") !== -1
+                                    })}
+                                    onClick={this._onNavigate.bind(
+                                        this,
+                                        `/account/${currentAccount}/whitelist`
+                                    )}
+                                >
+                                    <div className="table-cell">
+                                        <Icon
+                                            size="2x"
+                                            name="list"
+                                            title="icons.list"
+                                        />
+                                    </div>
+                                    <div className="table-cell">
+                                        <Translate content="account.whitelist.title" />
+                                    </div>
+                                </li>
+
                                 {!hasLocalWallet && (
                                     <li
                                         className={cnames(

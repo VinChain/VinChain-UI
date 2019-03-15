@@ -201,27 +201,6 @@ class AccountAssetCreate extends React.Component {
         const inputValue = target.value;
 
         switch (value) {
-            case "market_fee_percent":
-                update[value] = this._forcePositive(target.value);
-                break;
-
-            case "max_market_fee":
-                if (
-                    new big(inputValue)
-                        .times(precision)
-                        .gt(GRAPHENE_MAX_SHARE_SUPPLY)
-                ) {
-                    errors.max_market_fee =
-                        "The number you tried to enter is too large";
-                    return this.setState({errors});
-                }
-                target.value = utils.limitByPrecision(
-                    target.value,
-                    this.state.update.precision
-                );
-                update[value] = target.value;
-                break;
-
             case "precision":
                 // Enforce positive number
                 update[value] = this._forcePositive(target.value);
