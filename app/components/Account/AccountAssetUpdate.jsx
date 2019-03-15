@@ -54,7 +54,7 @@ class AccountAssetUpdate extends React.Component {
 
     resetState(props) {
         let asset = props.asset.toJS();
-        let isBitAsset = asset.bitasset_data_id !== undefined;
+        let isBitAsset = false;
         let precision = utils.get_asset_precision(asset.precision);
         let corePrecision = utils.get_asset_precision(
             props.core.get("precision")
@@ -66,6 +66,7 @@ class AccountAssetUpdate extends React.Component {
         let max_supply = new big(asset.options.max_supply)
             .div(precision)
             .toString();
+
         let core_exchange_rate = asset.options.core_exchange_rate;
         core_exchange_rate.quote.amount =
             core_exchange_rate.quote.asset_id === asset.id
@@ -102,6 +103,43 @@ class AccountAssetUpdate extends React.Component {
             core_exchange_rate.base.asset_id
         ).get("symbol");
 
+        debugger;
+        let payment_core_exchange_rate = asset.options.extensions
+            .payment_core_exchange_rate || {
+            base: {
+                amount: core_exchange_rate.base.amount,
+                asset_id: core_exchange_rate.base.asset_id
+            },
+            quote: {
+                amount: core_exchange_rate.quote.amount,
+                asset_id: core_exchange_rate.quote.asset_id
+            }
+        };
+        payment_core_exchange_rate.quote.amount =
+            payment_core_exchange_rate.quote.asset_id === asset.id
+                ? new big(payment_core_exchange_rate.quote.amount)
+                      .div(precision)
+                      .toString()
+                : new big(payment_core_exchange_rate.quote.amount)
+                      .div(corePrecision)
+                      .toString();
+
+        payment_core_exchange_rate.base.amount =
+            payment_core_exchange_rate.base.asset_id === asset.id
+                ? new big(payment_core_exchange_rate.base.amount)
+                      .div(precision)
+                      .toString()
+                : new big(payment_core_exchange_rate.base.amount)
+                      .div(corePrecision)
+                      .toString();
+
+        let paymentCoreRateQuoteAssetName = ChainStore.getAsset(
+            payment_core_exchange_rate.quote.asset_id
+        ).get("symbol");
+        let paymentCoreRateBaseAssetName = ChainStore.getAsset(
+            payment_core_exchange_rate.base.asset_id
+        ).get("symbol");
+
         return {
             update: {
                 max_supply: max_supply,
@@ -112,6 +150,7 @@ class AccountAssetUpdate extends React.Component {
                 )
             },
             core_exchange_rate: core_exchange_rate,
+            payment_core_exchange_rate: payment_core_exchange_rate,
             issuer: asset.issuer,
             new_issuer_account_id: null,
             issuer_account_name: null,
@@ -131,6 +170,10 @@ class AccountAssetUpdate extends React.Component {
             quoteAssetInput: coreRateQuoteAssetName,
             coreRateBaseAssetName: coreRateBaseAssetName,
             baseAssetInput: coreRateBaseAssetName,
+            paymentCoreRateQuoteAssetName: paymentCoreRateQuoteAssetName,
+            paymentQuoteAssetInput: paymentCoreRateQuoteAssetName,
+            paymentCoreRateBaseAssetName: paymentCoreRateBaseAssetName,
+            paymentBaseAssetInput: paymentCoreRateBaseAssetName,
             fundPoolAmount: 0,
             claimFeesAmount: 0,
             bitasset_opts: isBitAsset ? asset.bitasset.options : null,
@@ -169,8 +212,8 @@ class AccountAssetUpdate extends React.Component {
         let p = this.resetState(this.props);
         return (
             JSON.stringify(s.update) !== JSON.stringify(p.update) ||
-            JSON.stringify(s.core_exchange_rate) !==
-                JSON.stringify(p.core_exchange_rate) ||
+            JSON.stringify(s.payment_core_exchange_rate) !==
+                JSON.stringify(p.payment_core_exchange_rate) ||
             (s.new_issuer_account_id !== null &&
                 s.new_issuer_account_id !== s.issuer) ||
             JSON.stringify(s.flagBooleans) !== JSON.stringify(p.flagBooleans) ||
@@ -197,10 +240,10 @@ class AccountAssetUpdate extends React.Component {
 
         if (
             s.update.max_supply !== p.update.max_supply ||
-            s.core_exchange_rate.base.amount !==
-                p.core_exchange_rate.base.amount ||
-            s.core_exchange_rate.quote.amount !==
-                p.core_exchange_rate.quote.amount
+            s.payment_core_exchange_rate.base.amount !==
+                p.payment_core_exchange_rate.base.amount ||
+            s.payment_core_exchange_rate.quote.amount !==
+                p.payment_core_exchange_rate.quote.amount
         )
             tabUpdateIndex["0"] = true;
 
@@ -287,6 +330,7 @@ class AccountAssetUpdate extends React.Component {
             issuer,
             new_issuer_account_id,
             core_exchange_rate,
+            payment_core_exchange_rate,
             flagBooleans,
             permissionBooleans,
             isBitAsset,
@@ -310,9 +354,6 @@ class AccountAssetUpdate extends React.Component {
             isBitAsset
         );
 
-        if (this.state.marketInput !== update.description.market) {
-            update.description.market = "";
-        }
         let description = JSON.stringify(update.description);
 
         let auths = {
@@ -340,6 +381,7 @@ class AccountAssetUpdate extends React.Component {
             auths,
             feedProducersJS,
             originalFeedProducersJS,
+            payment_core_exchange_rate,
             this.assetChanged()
         ).then(() => {
             console.log(
@@ -465,7 +507,7 @@ class AccountAssetUpdate extends React.Component {
     }
 
     _validateEditFields(new_state) {
-        let cer = new_state.core_exchange_rate;
+        let pcer = new_state.payment_core_exchange_rate;
         let feedProducers = new_state.feedProducers
             ? new_state.feedProducers
             : this.state.feedProducers;
@@ -501,10 +543,10 @@ class AccountAssetUpdate extends React.Component {
             );
         }
 
-        if (cer) {
+        if (pcer) {
             if (
-                cer.quote.asset_id !== asset.get("id") &&
-                cer.base.asset_id !== asset.get("id")
+                pcer.quote.asset_id !== asset.get("id") &&
+                pcer.base.asset_id !== asset.get("id")
             ) {
                 errors.quote_asset = counterpart.translate(
                     "account.user_issued_assets.need_asset",
@@ -513,8 +555,8 @@ class AccountAssetUpdate extends React.Component {
             }
 
             if (
-                cer.quote.asset_id !== core.get("id") &&
-                cer.base.asset_id !== core.get("id")
+                pcer.quote.asset_id !== core.get("id") &&
+                pcer.base.asset_id !== core.get("id")
             ) {
                 errors.base_asset = counterpart.translate(
                     "account.user_issued_assets.need_asset",
@@ -559,8 +601,8 @@ class AccountAssetUpdate extends React.Component {
                 : this.props.core.get("precision")
         );
 
-        let {core_exchange_rate} = this.state;
-        core_exchange_rate[type] = {
+        let {payment_core_exchange_rate} = this.state;
+        payment_core_exchange_rate[type] = {
             amount: amount.amount,
             asset_id: amount.asset.get("id")
         };
@@ -593,16 +635,16 @@ class AccountAssetUpdate extends React.Component {
 
     _onFoundCoreAsset(type, asset) {
         if (asset) {
-            let core_rate = this.state.core_exchange_rate;
+            let core_rate = this.state.payment_core_exchange_rate;
             core_rate[type].asset_id = asset.get("id");
 
             this.setState({
-                core_exchange_rate: core_rate
+                payment_core_exchange_rate: core_rate
             });
 
             this._validateEditFields({
                 max_supply: this.state.max_supply,
-                core_exchange_rate: core_rate
+                payment_core_exchange_rate: core_rate
             });
         }
     }
@@ -693,6 +735,7 @@ class AccountAssetUpdate extends React.Component {
             isValid,
             update,
             core_exchange_rate,
+            payment_core_exchange_rate,
             flagBooleans,
             permissionBooleans,
             fundPoolAmount,
@@ -707,23 +750,23 @@ class AccountAssetUpdate extends React.Component {
 
         updateFee = <FormattedFee opType="asset_update" />;
 
-        let cr_quote_asset = ChainStore.getAsset(
-            core_exchange_rate.quote.asset_id
+        let pcr_quote_asset = ChainStore.getAsset(
+            payment_core_exchange_rate.quote.asset_id
         );
         let precision = utils.get_asset_precision(
-            cr_quote_asset.get("precision")
+            pcr_quote_asset.get("precision")
         );
-        let cr_base_asset = ChainStore.getAsset(
-            core_exchange_rate.base.asset_id
+        let pcr_base_asset = ChainStore.getAsset(
+            payment_core_exchange_rate.base.asset_id
         );
         let basePrecision = utils.get_asset_precision(
-            cr_base_asset.get("precision")
+            pcr_base_asset.get("precision")
         );
 
-        let cr_quote_amount =
-            parseFloat(core_exchange_rate.quote.amount) * precision;
-        let cr_base_amount =
-            parseFloat(core_exchange_rate.base.amount) * basePrecision;
+        let pcr_quote_amount =
+            parseFloat(payment_core_exchange_rate.quote.amount) * precision;
+        let pcr_base_amount =
+            parseFloat(payment_core_exchange_rate.base.amount) * basePrecision;
         let originalPermissions = assetUtils.getFlagBooleans(
             asset.getIn(["options", "issuer_permissions"]),
             asset.get("bitasset") !== undefined
@@ -891,10 +934,10 @@ class AccountAssetUpdate extends React.Component {
         let cerValid = false;
 
         if (
-            (cr_quote_asset.get("id") === "1.3.0" ||
-                cr_base_asset.get("id") === "1.3.0") &&
-            (cr_quote_asset.get("id") === asset.get("id") ||
-                cr_base_asset.get("id") === asset.get("id"))
+            (pcr_quote_asset.get("id") === "1.3.0" ||
+                pcr_base_asset.get("id") === "1.3.0") &&
+            (pcr_quote_asset.get("id") === asset.get("id") ||
+                pcr_base_asset.get("id") === asset.get("id"))
         ) {
             cerValid = true;
         }
@@ -1032,20 +1075,20 @@ class AccountAssetUpdate extends React.Component {
                                                 <AmountSelector
                                                     label="account.user_issued_assets.quote"
                                                     amount={
-                                                        core_exchange_rate.quote
-                                                            .amount
+                                                        payment_core_exchange_rate
+                                                            .quote.amount
                                                     }
                                                     onChange={this._onCoreRateChange.bind(
                                                         this,
                                                         "quote"
                                                     )}
                                                     asset={
-                                                        core_exchange_rate.quote
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .quote.asset_id
                                                     }
                                                     assets={[
-                                                        core_exchange_rate.quote
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .quote.asset_id
                                                     ]}
                                                     placeholder="0.0"
                                                     tabIndex={1}
@@ -1059,20 +1102,20 @@ class AccountAssetUpdate extends React.Component {
                                                 <AmountSelector
                                                     label="account.user_issued_assets.base"
                                                     amount={
-                                                        core_exchange_rate.base
-                                                            .amount
+                                                        payment_core_exchange_rate
+                                                            .base.amount
                                                     }
                                                     onChange={this._onCoreRateChange.bind(
                                                         this,
                                                         "base"
                                                     )}
                                                     asset={
-                                                        core_exchange_rate.base
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .base.asset_id
                                                     }
                                                     assets={[
-                                                        core_exchange_rate.base
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .base.asset_id
                                                     ]}
                                                     placeholder="0.0"
                                                     tabIndex={1}
@@ -1090,17 +1133,19 @@ class AccountAssetUpdate extends React.Component {
                                                 <FormattedPrice
                                                     style={{fontWeight: "bold"}}
                                                     quote_amount={
-                                                        cr_quote_amount
+                                                        pcr_quote_amount
                                                     }
                                                     quote_asset={
-                                                        core_exchange_rate.quote
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .quote.asset_id
                                                     }
                                                     base_asset={
-                                                        core_exchange_rate.base
-                                                            .asset_id
+                                                        payment_core_exchange_rate
+                                                            .base.asset_id
                                                     }
-                                                    base_amount={cr_base_amount}
+                                                    base_amount={
+                                                        pcr_base_amount
+                                                    }
                                                 />
                                             </h5>
                                         </div>

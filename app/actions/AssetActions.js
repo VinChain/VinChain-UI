@@ -101,22 +101,11 @@ class AssetActions {
         flags,
         permissions,
         cer,
-        isBitAsset,
-        is_prediction_market,
-        bitasset_opts,
-        description
+        description,
+        extensions
     ) {
         // Create asset action here...
-        console.log(
-            "create asset:",
-            createObject,
-            "flags:",
-            flags,
-            "isBitAsset:",
-            isBitAsset,
-            "bitasset_opts:",
-            bitasset_opts
-        );
+        console.log("create asset:", createObject, "flags:", flags);
         let tr = WalletApi.new_transaction();
         let precision = utils.get_asset_precision(createObject.precision);
 
@@ -163,15 +152,30 @@ class AssetActions {
                 whitelist_markets: [],
                 blacklist_markets: [],
                 description: description,
-                extensions: null
+                extensions: {
+                    payment_core_exchange_rate: {
+                        base: {
+                            amount:
+                                extensions.payment_core_exchange_rate.base
+                                    .amount * corePrecision,
+                            asset_id:
+                                extensions.payment_core_exchange_rate.base
+                                    .asset_id
+                        },
+                        quote: {
+                            amount:
+                                extensions.payment_core_exchange_rate.quote
+                                    .amount * precision,
+                            asset_id: "1.3.1"
+                        }
+                    }
+                }
             },
-            is_prediction_market: is_prediction_market,
+            is_prediction_market: false,
             extensions: null
         };
 
-        if (isBitAsset) {
-            operationJSON.bitasset_opts = bitasset_opts;
-        }
+        debugger;
 
         tr.add_type_operation("asset_create", operationJSON);
         return dispatch => {
@@ -206,6 +210,7 @@ class AssetActions {
         auths,
         feedProducers,
         originalFeedProducers,
+        payment_core_exchange_rate,
         assetChanged
     ) {
         // Create asset action here...
@@ -242,6 +247,32 @@ class AssetActions {
             let cr_base_amount = new big(core_exchange_rate.base.amount)
                 .times(cr_base_precision)
                 .toString();
+
+            let pcr_quote_asset = ChainStore.getAsset(
+                payment_core_exchange_rate.quote.asset_id
+            );
+            let pcr_quote_precision = utils.get_asset_precision(
+                pcr_quote_asset.get("precision")
+            );
+            let pcr_base_asset = ChainStore.getAsset(
+                payment_core_exchange_rate.base.asset_id
+            );
+            let pcr_base_precision = utils.get_asset_precision(
+                pcr_base_asset.get("precision")
+            );
+
+            let pcr_quote_amount = new big(
+                payment_core_exchange_rate.quote.amount
+            )
+                .times(pcr_quote_precision)
+                .toString();
+
+            let pcr_base_amount = new big(
+                payment_core_exchange_rate.base.amount
+            )
+                .times(pcr_base_precision)
+                .toString();
+
             console.log("auths:", auths);
             let updateObject = {
                 fee: {
@@ -263,7 +294,6 @@ class AssetActions {
                     blacklist_authorities: auths.blacklist_authorities.toJS(),
                     whitelist_markets: [],
                     blacklist_markets: [],
-                    extensions: asset.getIn(["options", "extensions"]),
                     core_exchange_rate: {
                         quote: {
                             amount: cr_quote_amount,
@@ -272,6 +302,20 @@ class AssetActions {
                         base: {
                             amount: cr_base_amount,
                             asset_id: core_exchange_rate.base.asset_id
+                        }
+                    },
+                    extensions: {
+                        payment_core_exchange_rate: {
+                            quote: {
+                                amount: pcr_quote_amount,
+                                asset_id:
+                                    payment_core_exchange_rate.quote.asset_id
+                            },
+                            base: {
+                                amount: pcr_base_amount,
+                                asset_id:
+                                    payment_core_exchange_rate.base.asset_id
+                            }
                         }
                     }
                 }
@@ -289,36 +333,6 @@ class AssetActions {
             "original_bitasset_opts:",
             original_bitasset_opts
         );
-        if (
-            isBitAsset &&
-            (bitasset_opts.feed_lifetime_sec !==
-                original_bitasset_opts.feed_lifetime_sec ||
-                bitasset_opts.minimum_feeds !==
-                    original_bitasset_opts.minimum_feeds ||
-                bitasset_opts.force_settlement_delay_sec !==
-                    original_bitasset_opts.force_settlement_delay_sec ||
-                bitasset_opts.force_settlement_offset_percent !==
-                    original_bitasset_opts.force_settlement_offset_percent ||
-                bitasset_opts.maximum_force_settlement_volume !==
-                    original_bitasset_opts.maximum_force_settlement_volume ||
-                bitasset_opts.short_backing_asset !==
-                    original_bitasset_opts.short_backing_asset)
-        ) {
-            let bitAssetUpdateObject = {
-                fee: {
-                    amount: 0,
-                    asset_id: 0
-                },
-                asset_to_update: asset.get("id"),
-                issuer: issuer,
-                new_options: bitasset_opts
-            };
-
-            tr.add_type_operation(
-                "asset_update_bitasset",
-                bitAssetUpdateObject
-            );
-        }
 
         console.log(
             "feedProducers:",
@@ -326,20 +340,6 @@ class AssetActions {
             "originalFeedProducers:",
             originalFeedProducers
         );
-        if (
-            isBitAsset &&
-            !utils.are_equal_shallow(feedProducers, originalFeedProducers)
-        ) {
-            tr.add_type_operation("asset_update_feed_producers", {
-                fee: {
-                    amount: 0,
-                    asset_id: "1.3.0"
-                },
-                issuer: issuer,
-                asset_to_update: asset.get("id"),
-                new_feed_producers: feedProducers
-            });
-        }
 
         return WalletDb.process_transaction(tr, null, true)
             .then(result => {
@@ -365,36 +365,6 @@ class AssetActions {
             memo
         );
     }
-
-    // issueAsset(account_id, issueObject) {
-    //     console.log("account_id: ", account_id, issueObject);
-    //     // Create asset action here...
-    //     var tr = WalletApi.new_transaction();
-    //     tr.add_type_operation("asset_issue", {
-    //         fee: {
-    //             amount: 0,
-    //             asset_id: 0
-    //         },
-    //         "issuer": account_id,
-    //         "asset_to_issue": {
-    //             "amount": issueObject.amount,
-    //             "asset_id": issueObject.asset_id
-    //         },
-    //         "issue_to_account": issueObject.to_id,
-
-    //         "extensions": [
-
-    //         ]
-    //     });
-    //     return WalletDb.process_transaction(tr, null, true).then(result => {
-    //         console.log("asset issue result:", result);
-    //         // this.dispatch(account_id);
-    //         return true;
-    //     }).catch(error => {
-    //         console.log("[AssetActions.js:150] ----- createAsset error ----->", error);
-    //         return false;
-    //     });
-    // }
 
     getAssetList(start, count) {
         let id = start + "_" + count;

@@ -40,22 +40,11 @@ class AccountAssetCreate extends React.Component {
     }
 
     resetState(props) {
-        // let asset = props.asset.toJS();
         let isBitAsset = false;
-        let precision = utils.get_asset_precision(4);
-        let corePrecision = utils.get_asset_precision(
-            props.core.get("precision")
-        );
 
         let {flagBooleans, permissionBooleans} = this._getPermissions({
             isBitAsset
         });
-
-        // let flags = assetUtils.getFlags(flagBooleans);
-        // let permissions = assetUtils.getPermissions(permissionBooleans, isBitAsset);
-        // console.log("all permissions:", permissionBooleans, permissions)
-
-        let coreRateBaseAssetName = ChainStore.getAsset("1.3.0").get("symbol");
 
         return {
             update: {
@@ -121,8 +110,7 @@ class AccountAssetCreate extends React.Component {
             permissionBooleans,
             core_exchange_rate,
             isBitAsset,
-            is_prediction_market,
-            bitasset_opts
+            extensions
         } = this.state;
 
         let {account} = this.props;
@@ -141,10 +129,8 @@ class AccountAssetCreate extends React.Component {
             flags,
             permissions,
             core_exchange_rate,
-            isBitAsset,
-            is_prediction_market,
-            bitasset_opts,
-            description
+            description,
+            extensions
         ).then(result => {
             console.log(
                 "... AssetActions.createAsset(account_id, update)",
@@ -374,22 +360,6 @@ class AccountAssetCreate extends React.Component {
         }
     }
 
-    _onFoundCoreAsset(type, asset) {
-        if (asset) {
-            let core_rate = this.state.core_exchange_rate;
-            core_rate[type].asset_id = asset.get("id");
-
-            this.setState({
-                core_exchange_rate: core_rate
-            });
-
-            this._validateEditFields({
-                max_supply: this.state.max_supply,
-                core_exchange_rate: core_rate
-            });
-        }
-    }
-
     _onCoreRateChange(type, e) {
         let amount, asset;
         if (type === "quote") {
@@ -412,8 +382,8 @@ class AccountAssetCreate extends React.Component {
             asset = e.asset.get("id");
         }
 
-        let {core_exchange_rate} = this.state;
-        core_exchange_rate[type] = {
+        let {extensions} = this.state;
+        extensions.payment_core_exchange_rate[type] = {
             amount: amount,
             asset_id: asset
         };
@@ -428,10 +398,7 @@ class AccountAssetCreate extends React.Component {
             update,
             flagBooleans,
             permissionBooleans,
-            core_exchange_rate,
-            is_prediction_market,
-            isBitAsset,
-            bitasset_opts
+            extensions
         } = this.state;
 
         // Estimate the asset creation fee from the symbol character length
@@ -689,7 +656,8 @@ class AccountAssetCreate extends React.Component {
                                                                 "quote"
                                                             )}
                                                             value={
-                                                                core_exchange_rate
+                                                                extensions
+                                                                    .payment_core_exchange_rate
                                                                     .quote
                                                                     .amount
                                                             }
@@ -701,20 +669,23 @@ class AccountAssetCreate extends React.Component {
                                                 <AmountSelector
                                                     label="account.user_issued_assets.base"
                                                     amount={
-                                                        core_exchange_rate.base
-                                                            .amount
+                                                        extensions
+                                                            .payment_core_exchange_rate
+                                                            .base.amount
                                                     }
                                                     onChange={this._onCoreRateChange.bind(
                                                         this,
                                                         "base"
                                                     )}
                                                     asset={
-                                                        core_exchange_rate.base
-                                                            .asset_id
+                                                        extensions
+                                                            .payment_core_exchange_rate
+                                                            .base.asset_id
                                                     }
                                                     assets={[
-                                                        core_exchange_rate.base
-                                                            .asset_id
+                                                        extensions
+                                                            .payment_core_exchange_rate
+                                                            .base.asset_id
                                                     ]}
                                                     placeholder="0.0"
                                                     tabIndex={1}
@@ -732,7 +703,8 @@ class AccountAssetCreate extends React.Component {
                                                     :{" "}
                                                     {utils.format_number(
                                                         utils.get_asset_price(
-                                                            core_exchange_rate
+                                                            extensions
+                                                                .payment_core_exchange_rate
                                                                 .quote.amount *
                                                                 utils.get_asset_precision(
                                                                     update.precision
@@ -741,7 +713,8 @@ class AccountAssetCreate extends React.Component {
                                                                 precision:
                                                                     update.precision
                                                             },
-                                                            core_exchange_rate
+                                                            extensions
+                                                                .payment_core_exchange_rate
                                                                 .base.amount *
                                                                 utils.get_asset_precision(
                                                                     core
