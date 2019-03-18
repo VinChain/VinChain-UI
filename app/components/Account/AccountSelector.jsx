@@ -192,7 +192,7 @@ class AccountSelector extends React.Component {
 
         // Without Typeahead Error Handling
         if (!typeahead) {
-            if (!account)
+            if (!account && accountName !== "")
                 error = counterpart.translate("account.errors.unknown");
         } else {
             if (allowPubKey && account.accountType === "pubkey")

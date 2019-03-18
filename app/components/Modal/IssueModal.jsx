@@ -7,6 +7,7 @@ import counterpart from "counterpart";
 import AssetActions from "actions/AssetActions";
 import AccountSelector from "../Account/AccountSelector";
 import AmountSelector from "../Utility/AmountSelector";
+import classnames from "classnames";
 
 class IssueModal extends React.Component {
     static propTypes = {
@@ -16,8 +17,8 @@ class IssueModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            amount: props.amount,
-            to: props.to,
+            amount: props.amount || 0,
+            to: props.to || "",
             to_id: null,
             memo: null
         };
@@ -57,10 +58,21 @@ class IssueModal extends React.Component {
         );
 
         this.setState({
-            amount: null,
+            amount: 0,
+            to: "",
             to_id: null,
             memo: null
         });
+    }
+
+    _onClose() {
+        this.setState({
+            amount: 0,
+            to: "",
+            to_id: null,
+            memo: null
+        });
+        this.props.onClose();
     }
 
     onMemoChanged(e) {
@@ -68,6 +80,12 @@ class IssueModal extends React.Component {
     }
 
     render() {
+        const isSendNotValid =
+            !this.state.amount ||
+            isNaN(this.state.amount) ||
+            !this.state.to ||
+            !this.state.to_id;
+
         let asset_to_issue = this.props.asset_to_issue.get("id");
         let tabIndex = 1;
 
@@ -120,19 +138,25 @@ class IssueModal extends React.Component {
                     <div className="content-block button-group">
                         <input
                             type="submit"
-                            className="button success"
-                            onClick={this.onSubmit.bind(
-                                this,
-                                this.state.to,
-                                this.state.amount
-                            )}
+                            className={classnames("button success", {
+                                disabled: isSendNotValid
+                            })}
+                            onClick={
+                                !isSendNotValid
+                                    ? this.onSubmit.bind(
+                                          this,
+                                          this.state.to,
+                                          this.state.amount
+                                      )
+                                    : null
+                            }
                             value={counterpart.translate("modal.issue.submit")}
                             tabIndex={tabIndex++}
                         />
 
                         <div
                             className="button"
-                            onClick={this.props.onClose}
+                            onClick={this._onClose.bind(this)}
                             tabIndex={tabIndex++}
                         >
                             {counterpart.translate("cancel")}

@@ -103,7 +103,6 @@ class AccountAssetUpdate extends React.Component {
             core_exchange_rate.base.asset_id
         ).get("symbol");
 
-        debugger;
         let payment_core_exchange_rate = asset.options.extensions
             .payment_core_exchange_rate || {
             base: {

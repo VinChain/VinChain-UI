@@ -175,8 +175,6 @@ class AssetActions {
             extensions: null
         };
 
-        debugger;
-
         tr.add_type_operation("asset_create", operationJSON);
         return dispatch => {
             return WalletDb.process_transaction(tr, null, true)
