@@ -774,7 +774,14 @@ class SendModal extends React.Component {
                                                             ? asset_id
                                                             : asset_types[0]
                                                     }
-                                                    assets={asset_types}
+                                                    assets={[
+                                                        asset_types.length >
+                                                            0 && asset
+                                                            ? asset.get("id")
+                                                            : asset_id
+                                                            ? asset_id
+                                                            : asset_types[0]
+                                                    ]}
                                                     display_balance={
                                                         balance_fee
                                                     }
