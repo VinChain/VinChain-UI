@@ -6,6 +6,7 @@ import {ChainStore} from "bitsharesjs/es";
 import AccountSelect from "../Forms/AccountSelect";
 import AmountSelector from "../Utility/AmountSelector";
 import AccountStore from "stores/AccountStore";
+import WalletUnlockStore from "stores/WalletUnlockStore";
 import AccountSelector from "../Account/AccountSelector";
 import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import {Asset} from "common/MarketClasses";
@@ -118,7 +119,7 @@ class SendModal extends React.Component {
             precision: asset.get("precision")
         });
 
-        this.setState({hidden: true});
+        this.onClose();
 
         AccountActions.transfer(
             this.state.from_account.get("id"),
@@ -132,7 +133,6 @@ class SendModal extends React.Component {
             this.state.feeAsset ? this.state.feeAsset.get("id") : "1.3.0"
         )
             .then(() => {
-                this.onClose();
                 TransactionConfirmStore.unlisten(this.onTrxIncluded);
                 TransactionConfirmStore.listen(this.onTrxIncluded);
             })
@@ -614,7 +614,8 @@ class SendModal extends React.Component {
             from_error ||
             propose_incomplete ||
             balanceError ||
-            (!AccountStore.isMyAccount(from_account) && !propose);
+            (!WalletUnlockStore.getState().locked &&
+                !AccountStore.isMyAccount(from_account));
 
         let tabIndex = this.props.tabIndex; // Continue tabIndex on props count
 
