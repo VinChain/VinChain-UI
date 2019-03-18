@@ -7,6 +7,7 @@ import {
     ops
 } from "bitsharesjs/es";
 import {Price, Asset} from "common/MarketClasses";
+import assetConstants from "chain/asset_constants";
 const {operations} = ChainTypes;
 
 function estimateFeeAsync(type, options = null, data = {}) {
@@ -91,9 +92,9 @@ function checkFeeStatusAsync({
                     let hasValidCER = true;
 
                     /*
-                ** If the fee is to be paid in a non-core asset, check the fee
-                ** pool and convert the amount using the CER
-                */
+                     ** If the fee is to be paid in a non-core asset, check the fee
+                     ** pool and convert the amount using the CER
+                     */
                     if (feeID !== "1.3.0") {
                         // Convert the amount using the CER
                         let cer = feeAsset.getIn([
@@ -115,9 +116,9 @@ function checkFeeStatusAsync({
                         let quote = new Asset(q);
 
                         /*
-                    ** If the CER is incorrectly configured, the multiplication
-                    ** will fail, so catch the error and default to core
-                    */
+                         ** If the CER is incorrectly configured, the multiplication
+                         ** will fail, so catch the error and default to core
+                         */
                         try {
                             let price = new Price({base, quote});
                             fee = fee.times(price, true);
@@ -150,9 +151,9 @@ let _feeCache = {};
 function estimateFee(op_type, options, globalObject, data = {}) {
     // console.time("estimateFee");
     /*
-    * The actual content doesn't matter, only the length of it, so we use a
-    * string of equal length to improve caching
-    */
+     * The actual content doesn't matter, only the length of it, so we use a
+     * string of equal length to improve caching
+     */
     if (!!data.content)
         data.content = new Array(data.content.length + 1).join("a");
     if (!globalObject) return 0;
@@ -212,10 +213,22 @@ function estimateFee(op_type, options, globalObject, data = {}) {
                         ops.memo_data.toHex(serialized)
                     );
                     const byteLength = Buffer.byteLength(stringified, "hex");
-                    fee += optionFee * byteLength / 1024;
+                    fee += (optionFee * byteLength) / 1024;
 
                     _prevContent = data.content;
                 }
+            } else if (option === "percentage") {
+                let {fee_percent, max_fee} = currentFees;
+                let feeInCoreAsset = new Asset({
+                    asset_id: "1.3.0",
+                    precision:
+                        assetConstants.GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS,
+                    real: parseInt(data.amount || 0, 10)
+                });
+                let percentage =
+                    (fee_percent / assetConstants.GRAPHENE_100_PERCENT) *
+                    feeInCoreAsset.amount;
+                fee += percentage > max_fee ? max_fee : percentage;
             } else if (optionFee) {
                 fee += optionFee;
             }
@@ -223,8 +236,7 @@ function estimateFee(op_type, options, globalObject, data = {}) {
     }
     // console.timeEnd("estimateFee");
     fee =
-        fee *
-        globalObject.getIn(["parameters", "current_fees", "scale"]) /
+        (fee * globalObject.getIn(["parameters", "current_fees", "scale"])) /
         10000;
     _feeCache[cacheKey] = fee;
     setTimeout(() => {
