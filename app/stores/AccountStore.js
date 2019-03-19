@@ -48,7 +48,8 @@ class AccountStore extends BaseStore {
             "getMyAuthorityForAccount",
             "isMyKey",
             "reset",
-            "setWallet"
+            "setWallet",
+            "hasPermission"
         );
 
         const referralAccount = this._checkReferrer();
@@ -62,6 +63,7 @@ class AccountStore extends BaseStore {
             searchAccounts: Immutable.Map(),
             accountContacts: Immutable.Set(),
             linkedAccounts: Immutable.Set(), // linkedAccounts are accounts for which the user controls the private keys, which are stored in a db with the wallet and automatically loaded every time the app starts
+            permissions: Immutable.Set(),
             referralAccount
         };
 
@@ -94,6 +96,12 @@ class AccountStore extends BaseStore {
         } catch (err) {
             console.error(err);
         }
+    }
+
+    hasPermission(permission) {
+        return this.state.permissions.some(p => {
+            return p.get("permission") === permission;
+        });
     }
 
     _checkReferrer() {
@@ -260,8 +268,7 @@ class AccountStore extends BaseStore {
         let myActiveAccounts = Immutable.Set().asMutable();
         let chainId = Apis.instance().chain_id;
         return new Promise((resolve, reject) => {
-            iDB
-                .load_data("linked_accounts")
+            iDB.load_data("linked_accounts")
                 .then(data => {
                     this.state.linkedAccounts = Immutable.fromJS(
                         data || []
@@ -277,7 +284,6 @@ class AccountStore extends BaseStore {
                         .map(a => {
                             return FetchChain("getAccount", a.name);
                         });
-
                     Promise.all(accountPromises)
                         .then(accounts => {
                             accounts.forEach(a => {
@@ -359,9 +365,9 @@ class AccountStore extends BaseStore {
                     });
 
                     /*
-                    * Some wallets contain deprecated entries with no chain
-                    * ids, remove these then write new entires with chain ids
-                    */
+                     * Some wallets contain deprecated entries with no chain
+                     * ids, remove these then write new entires with chain ids
+                     */
                     const nameOnlyEntry = this.state.linkedAccounts.findKey(
                         a => {
                             return (
@@ -512,12 +518,12 @@ class AccountStore extends BaseStore {
         return final.get("full") && final.size === 1
             ? "full"
             : final.get("partial") && final.size === 1
-                ? "partial"
-                : final.get("none") && final.size === 1
-                    ? "none"
-                    : final.get("full") || final.get("partial")
-                        ? "partial"
-                        : undefined;
+            ? "partial"
+            : final.get("none") && final.size === 1
+            ? "none"
+            : final.get("full") || final.get("partial")
+            ? "partial"
+            : undefined;
     }
 
     isMyAccount(account) {
@@ -578,6 +584,9 @@ class AccountStore extends BaseStore {
         }
 
         this.setState({currentAccount: name});
+        ChainStore.fetchAccountPermissions(name).then(permissions => {
+            this.setState({permissions: Immutable.fromJS(permissions)});
+        });
 
         accountStorage.set(key, name || null);
     }

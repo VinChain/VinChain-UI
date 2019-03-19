@@ -337,6 +337,7 @@ class Header extends React.Component {
         let myAccounts = AccountStore.getMyAccounts();
         let myAccountCount = myAccounts.length;
 
+        let canManageAssets = AccountStore.hasPermission("asset_create");
         let walletBalance =
             myAccounts.length && this.props.currentAccount ? (
                 <div
@@ -579,6 +580,7 @@ class Header extends React.Component {
             );
         }
         if (
+            canManageAssets &&
             active.indexOf("/assets") !== -1 &&
             active.indexOf("explorer") === -1
         ) {
@@ -666,7 +668,7 @@ class Header extends React.Component {
                 </a>
             );
         }
-        if (active.indexOf("/whitelist") !== -1) {
+        if (canManageAssets && active.indexOf("/whitelist") !== -1) {
             dynamicMenuItem = (
                 <a
                     style={{flexFlow: "row"}}
@@ -1289,24 +1291,28 @@ class Header extends React.Component {
                                     </div>
                                 </li>
 
-                                <li
-                                    className={cnames({
-                                        active:
-                                            active.indexOf("/assets") !== -1 &&
-                                            active.indexOf("/account/") !== -1
-                                    })}
-                                    onClick={this._onNavigate.bind(
-                                        this,
-                                        `/account/${currentAccount}/assets`
-                                    )}
-                                >
-                                    <div className="table-cell">
-                                        <Icon size="2x" name="assets" />
-                                    </div>
-                                    <div className="table-cell">
-                                        <Translate content="explorer.assets.title" />
-                                    </div>
-                                </li>
+                                {canManageAssets ? (
+                                    <li
+                                        className={cnames({
+                                            active:
+                                                active.indexOf("/assets") !==
+                                                    -1 &&
+                                                active.indexOf("/account/") !==
+                                                    -1
+                                        })}
+                                        onClick={this._onNavigate.bind(
+                                            this,
+                                            `/account/${currentAccount}/assets`
+                                        )}
+                                    >
+                                        <div className="table-cell">
+                                            <Icon size="2x" name="assets" />
+                                        </div>
+                                        <div className="table-cell">
+                                            <Translate content="explorer.assets.title" />
+                                        </div>
+                                    </li>
+                                ) : null}
 
                                 <li
                                     className={cnames({
@@ -1346,29 +1352,30 @@ class Header extends React.Component {
                                         <Translate content="account.permissions" />
                                     </div>
                                 </li>
-
-                                <li
-                                    className={cnames({
-                                        active:
-                                            active.indexOf("/whitelist") !== -1
-                                    })}
-                                    onClick={this._onNavigate.bind(
-                                        this,
-                                        `/account/${currentAccount}/whitelist`
-                                    )}
-                                >
-                                    <div className="table-cell">
-                                        <Icon
-                                            size="2x"
-                                            name="list"
-                                            title="icons.list"
-                                        />
-                                    </div>
-                                    <div className="table-cell">
-                                        <Translate content="account.whitelist.title" />
-                                    </div>
-                                </li>
-
+                                {canManageAssets ? (
+                                    <li
+                                        className={cnames({
+                                            active:
+                                                active.indexOf("/whitelist") !==
+                                                -1
+                                        })}
+                                        onClick={this._onNavigate.bind(
+                                            this,
+                                            `/account/${currentAccount}/whitelist`
+                                        )}
+                                    >
+                                        <div className="table-cell">
+                                            <Icon
+                                                size="2x"
+                                                name="list"
+                                                title="icons.list"
+                                            />
+                                        </div>
+                                        <div className="table-cell">
+                                            <Translate content="account.whitelist.title" />
+                                        </div>
+                                    </li>
+                                ) : null}
                                 {!hasLocalWallet && (
                                     <li
                                         className={cnames(
