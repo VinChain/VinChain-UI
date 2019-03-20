@@ -1155,10 +1155,6 @@ class AccountAssetUpdate extends React.Component {
                                             component="label"
                                             className="has-error"
                                         />
-                                        <Translate
-                                            content="account.user_issued_assets.cer_warning_2"
-                                            component="p"
-                                        />
                                     </div>
 
                                     {

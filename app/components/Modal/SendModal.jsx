@@ -602,17 +602,18 @@ class SendModal extends React.Component {
             }
         }
 
-        let propose_incomplete = propose && !propose_account;
         const amountValue = parseFloat(
             String.prototype.replace.call(amount, /,/g, "")
         );
         const isAmountValid = amountValue && !isNaN(amountValue);
         const isSendNotValid =
             !from_account ||
+            !to_account ||
+            !from_name ||
+            !to_name ||
             !isAmountValid ||
             !asset ||
             from_error ||
-            propose_incomplete ||
             balanceError ||
             (!WalletUnlockStore.getState().locked &&
                 !AccountStore.isMyAccount(from_account));

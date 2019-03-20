@@ -146,10 +146,7 @@ class Dropdown extends React.Component {
                     <ul
                         className="dropdown"
                         style={{
-                            overflow:
-                                entries.length > this.props.scroll_length
-                                    ? "auto"
-                                    : "hidden"
+                            overflow: "auto"
                         }}
                     >
                         {options}

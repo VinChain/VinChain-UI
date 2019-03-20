@@ -49,7 +49,7 @@ class AccountAssetCreate extends React.Component {
         return {
             update: {
                 symbol: "",
-                precision: 4,
+                precision: 6,
                 max_supply: 100000,
                 max_market_fee: 0,
                 market_fee_percent: 0,
@@ -720,10 +720,6 @@ class AccountAssetCreate extends React.Component {
                                             content="account.user_issued_assets.cer_warning_1"
                                             component="label"
                                             className="has-error"
-                                        />
-                                        <Translate
-                                            content="account.user_issued_assets.cer_warning_2"
-                                            component="p"
                                         />
                                     </div>
                                     {

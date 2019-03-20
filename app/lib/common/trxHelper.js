@@ -10,11 +10,20 @@ import {Price, Asset} from "common/MarketClasses";
 import assetConstants from "chain/asset_constants";
 const {operations} = ChainTypes;
 
-function estimateFeeAsync(type, options = null, data = {}) {
+function estimateFeeAsync(
+    type,
+    options = null,
+    data = {},
+    feeAssetID = "1.3.0"
+) {
     return new Promise((res, rej) => {
-        FetchChain("getObject", "2.0.0")
-            .then(obj => {
-                res(estimateFee(type, options, obj, data));
+        Promise.all([
+            FetchChain("getObject", "2.0.0"),
+            feeAssetID !== "1.3.0" ? FetchChain("getAsset", feeAssetID) : null
+        ])
+            .then(result => {
+                let [obj, feeAsset] = result;
+                res(estimateFee(type, options, obj, data, feeAsset));
             })
             .catch(rej);
     });
@@ -55,7 +64,7 @@ function checkFeeStatusAsync({
 } = {}) {
     return new Promise((res, rej) => {
         Promise.all([
-            estimateFeeAsync(type, options, data),
+            estimateFeeAsync(type, options, data, feeID),
             checkFeePoolAsync({assetID: feeID, type, options, data}),
             FetchChain("getAccount", accountID),
             FetchChain("getAsset", "1.3.0"),
@@ -148,7 +157,13 @@ let _privKey;
 let _cachedMessage, _prevContent;
 
 let _feeCache = {};
-function estimateFee(op_type, options, globalObject, data = {}) {
+function estimateFee(
+    op_type,
+    options,
+    globalObject,
+    data = {},
+    feeAsset = null
+) {
     // console.time("estimateFee");
     /*
      * The actual content doesn't matter, only the length of it, so we use a
@@ -219,15 +234,16 @@ function estimateFee(op_type, options, globalObject, data = {}) {
                 }
             } else if (option === "percentage") {
                 let {fee_percent, max_fee} = currentFees;
-                let feeInCoreAsset = new Asset({
-                    asset_id: "1.3.0",
-                    precision:
-                        assetConstants.GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS,
+                let asset = new Asset({
+                    asset_id: feeAsset ? feeAsset.get("id") : "1.3.0",
+                    precision: feeAsset
+                        ? feeAsset.get("precision")
+                        : assetConstants.GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS,
                     real: parseInt(data.amount || 0, 10)
                 });
                 let percentage =
                     (fee_percent / assetConstants.GRAPHENE_100_PERCENT) *
-                    feeInCoreAsset.amount;
+                    asset.amount;
                 fee += percentage > max_fee ? max_fee : percentage;
             } else if (optionFee) {
                 fee += optionFee;
