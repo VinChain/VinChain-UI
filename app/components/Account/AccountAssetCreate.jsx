@@ -573,29 +573,6 @@ class AccountAssetCreate extends React.Component {
                                         </p>
                                     ) : null}
 
-                                    <label>
-                                        <Translate content="account.user_issued_assets.decimals" />
-                                        <input
-                                            min="0"
-                                            max="8"
-                                            step="1"
-                                            type="range"
-                                            value={update.precision}
-                                            onChange={this._onUpdateInput.bind(
-                                                this,
-                                                "precision"
-                                            )}
-                                        />
-                                    </label>
-                                    <p>{update.precision}</p>
-
-                                    <div
-                                        style={{marginBottom: 10}}
-                                        className="txtlabel cancel"
-                                    >
-                                        <Translate content="account.user_issued_assets.precision_warning" />
-                                    </div>
-
                                     {/* CER */}
                                     <Translate
                                         component="h3"
