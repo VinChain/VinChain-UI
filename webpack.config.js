@@ -86,10 +86,10 @@ module.exports = function(env) {
         let outputDir = env.electron
             ? "electron"
             : env.hash
-                ? !baseUrl
-                    ? "hash-history"
-                    : `hash-history_${baseUrl.replace("/", "")}`
-                : "dist";
+            ? !baseUrl
+                ? "hash-history"
+                : `hash-history_${baseUrl.replace("/", "")}`
+            : "dist";
         outputPath = path.join(root_dir, "build", outputDir);
 
         // DIRECTORY CLEANER
@@ -208,7 +208,8 @@ module.exports = function(env) {
                     include: [
                         path.join(root_dir, "app"),
                         path.join(root_dir, "node_modules/react-datepicker2"),
-                        path.join(root_dir, "node_modules/lodash-es")
+                        path.join(root_dir, "node_modules/lodash-es"),
+                        path.join(root_dir, "node_modules/base-x")
                     ],
                     loader: "babel-loader",
                     options: {compact: false, cacheDirectory: true}
