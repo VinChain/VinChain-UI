@@ -294,6 +294,8 @@ function checkBalance(amount, sendAsset, feeAmount, balance) {
 function shouldPayFeeWithAssetAsync(fromAccount, feeAmount) {
     if (fromAccount && feeAmount && feeAmount.asset_id === "1.3.0") {
         const balanceID = fromAccount.getIn(["balances", feeAmount.asset_id]);
+        if (!balanceID) return new Promise(resolve => resolve(false));
+
         return FetchChain("getObject", balanceID).then(balanceObject => {
             const balance = balanceObject.get("balance");
             if (balance <= feeAmount.amount) return true;
