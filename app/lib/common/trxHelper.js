@@ -7,13 +7,23 @@ import {
     ops
 } from "bitsharesjs/es";
 import {Price, Asset} from "common/MarketClasses";
+import assetConstants from "chain/asset_constants";
 const {operations} = ChainTypes;
 
-function estimateFeeAsync(type, options = null, data = {}) {
+function estimateFeeAsync(
+    type,
+    options = null,
+    data = {},
+    feeAssetID = "1.3.0"
+) {
     return new Promise((res, rej) => {
-        FetchChain("getObject", "2.0.0")
-            .then(obj => {
-                res(estimateFee(type, options, obj, data));
+        Promise.all([
+            FetchChain("getObject", "2.0.0"),
+            feeAssetID !== "1.3.0" ? FetchChain("getAsset", feeAssetID) : null
+        ])
+            .then(result => {
+                let [obj, feeAsset] = result;
+                res(estimateFee(type, options, obj, data, feeAsset));
             })
             .catch(rej);
     });
@@ -54,7 +64,7 @@ function checkFeeStatusAsync({
 } = {}) {
     return new Promise((res, rej) => {
         Promise.all([
-            estimateFeeAsync(type, options, data),
+            estimateFeeAsync(type, options, data, feeID),
             checkFeePoolAsync({assetID: feeID, type, options, data}),
             FetchChain("getAccount", accountID),
             FetchChain("getAsset", "1.3.0"),
@@ -91,9 +101,9 @@ function checkFeeStatusAsync({
                     let hasValidCER = true;
 
                     /*
-                ** If the fee is to be paid in a non-core asset, check the fee
-                ** pool and convert the amount using the CER
-                */
+                     ** If the fee is to be paid in a non-core asset, check the fee
+                     ** pool and convert the amount using the CER
+                     */
                     if (feeID !== "1.3.0") {
                         // Convert the amount using the CER
                         let cer = feeAsset.getIn([
@@ -115,9 +125,9 @@ function checkFeeStatusAsync({
                         let quote = new Asset(q);
 
                         /*
-                    ** If the CER is incorrectly configured, the multiplication
-                    ** will fail, so catch the error and default to core
-                    */
+                         ** If the CER is incorrectly configured, the multiplication
+                         ** will fail, so catch the error and default to core
+                         */
                         try {
                             let price = new Price({base, quote});
                             fee = fee.times(price, true);
@@ -147,12 +157,18 @@ let _privKey;
 let _cachedMessage, _prevContent;
 
 let _feeCache = {};
-function estimateFee(op_type, options, globalObject, data = {}) {
+function estimateFee(
+    op_type,
+    options,
+    globalObject,
+    data = {},
+    feeAsset = null
+) {
     // console.time("estimateFee");
     /*
-    * The actual content doesn't matter, only the length of it, so we use a
-    * string of equal length to improve caching
-    */
+     * The actual content doesn't matter, only the length of it, so we use a
+     * string of equal length to improve caching
+     */
     if (!!data.content)
         data.content = new Array(data.content.length + 1).join("a");
     if (!globalObject) return 0;
@@ -212,10 +228,23 @@ function estimateFee(op_type, options, globalObject, data = {}) {
                         ops.memo_data.toHex(serialized)
                     );
                     const byteLength = Buffer.byteLength(stringified, "hex");
-                    fee += optionFee * byteLength / 1024;
+                    fee += (optionFee * byteLength) / 1024;
 
                     _prevContent = data.content;
                 }
+            } else if (option === "percentage") {
+                let {fee_percent, max_fee} = currentFees;
+                let asset = new Asset({
+                    asset_id: feeAsset ? feeAsset.get("id") : "1.3.0",
+                    precision: feeAsset
+                        ? feeAsset.get("precision")
+                        : assetConstants.GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS,
+                    real: parseInt(data.amount || 0, 10)
+                });
+                let percentage =
+                    (fee_percent / assetConstants.GRAPHENE_100_PERCENT) *
+                    asset.amount;
+                fee += percentage > max_fee ? max_fee : percentage;
             } else if (optionFee) {
                 fee += optionFee;
             }
@@ -223,8 +252,7 @@ function estimateFee(op_type, options, globalObject, data = {}) {
     }
     // console.timeEnd("estimateFee");
     fee =
-        fee *
-        globalObject.getIn(["parameters", "current_fees", "scale"]) /
+        (fee * globalObject.getIn(["parameters", "current_fees", "scale"])) /
         10000;
     _feeCache[cacheKey] = fee;
     setTimeout(() => {
@@ -266,6 +294,8 @@ function checkBalance(amount, sendAsset, feeAmount, balance) {
 function shouldPayFeeWithAssetAsync(fromAccount, feeAmount) {
     if (fromAccount && feeAmount && feeAmount.asset_id === "1.3.0") {
         const balanceID = fromAccount.getIn(["balances", feeAmount.asset_id]);
+        if (!balanceID) return new Promise(resolve => resolve(false));
+
         return FetchChain("getObject", balanceID).then(balanceObject => {
             const balance = balanceObject.get("balance");
             if (balance <= feeAmount.amount) return true;

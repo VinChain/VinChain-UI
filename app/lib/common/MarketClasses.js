@@ -1,4 +1,5 @@
 import {Fraction} from "fractional";
+import assetConstants from "chain/asset_constants";
 
 const GRAPHENE_100_PERCENT = 10000;
 
@@ -42,7 +43,7 @@ class Asset {
     constructor({
         asset_id = "1.3.0",
         amount = 0,
-        precision = 5,
+        precision = assetConstants.GRAPHENE_BLOCKCHAIN_PRECISION_DIGITS,
         real = null
     } = {}) {
         this.satoshi = precisionToRatio(precision);
@@ -133,13 +134,13 @@ class Asset {
         // asset amount times a price p
         let temp, amount;
         if (this.asset_id === p.base.asset_id) {
-            temp = this.amount * p.quote.amount / p.base.amount;
+            temp = (this.amount * p.quote.amount) / p.base.amount;
             amount = Math.floor(temp);
             /*
-            * Sometimes prices are inexact for the relevant amounts, in the case
-            * of bids this means we need to round up in order to pay 1 sat more
-            * than the floored price, if we don't do this the orders don't match
-            */
+             * Sometimes prices are inexact for the relevant amounts, in the case
+             * of bids this means we need to round up in order to pay 1 sat more
+             * than the floored price, if we don't do this the orders don't match
+             */
             if (isBid && temp !== amount) {
                 amount += 1;
             }
@@ -150,13 +151,13 @@ class Asset {
                 precision: p.quote.precision
             });
         } else if (this.asset_id === p.quote.asset_id) {
-            temp = this.amount * p.base.amount / p.quote.amount;
+            temp = (this.amount * p.base.amount) / p.quote.amount;
             amount = Math.floor(temp);
             /*
-            * Sometimes prices are inexact for the relevant amounts, in the case
-            * of bids this means we need to round up in order to pay 1 sat more
-            * than the floored price, if we don't do this the orders don't match
-            */
+             * Sometimes prices are inexact for the relevant amounts, in the case
+             * of bids this means we need to round up in order to pay 1 sat more
+             * than the floored price, if we don't do this the orders don't match
+             */
             if (isBid && temp !== amount) {
                 amount += 1;
             }
@@ -216,10 +217,10 @@ class Price {
         quote = quote.clone();
         if (real && typeof real === "number") {
             /*
-            * In order to make large numbers work properly, we assume numbers
-            * larger than 100k do not need more than 5 decimals. Without this we
-            * quickly encounter JavaScript floating point errors for large numbers.
-            */
+             * In order to make large numbers work properly, we assume numbers
+             * larger than 100k do not need more than 5 decimals. Without this we
+             * quickly encounter JavaScript floating point errors for large numbers.
+             */
             if (real > 100000) {
                 real = limitByPrecision(real, 5);
             }
@@ -272,11 +273,9 @@ class Price {
             return this[key];
         }
         let real = sameBase
-            ? this.quote.amount *
-              this.base.toSats() /
+            ? (this.quote.amount * this.base.toSats()) /
               (this.base.amount * this.quote.toSats())
-            : this.base.amount *
-              this.quote.toSats() /
+            : (this.base.amount * this.quote.toSats()) /
               (this.quote.amount * this.base.toSats());
         return (this[key] = parseFloat(real.toFixed(8))); // toFixed and parseFloat helps avoid floating point errors for really big or small numbers
     }
@@ -633,10 +632,10 @@ class CallOrder {
         });
 
         /*
-        * The call price is DEBT * MCR / COLLATERAL. This calculation is already
-        * done by the witness_node before returning the orders so it is not necessary
-        * to deal with the MCR (maintenance collateral ratio) here.
-        */
+         * The call price is DEBT * MCR / COLLATERAL. This calculation is already
+         * done by the witness_node before returning the orders so it is not necessary
+         * to deal with the MCR (maintenance collateral ratio) here.
+         */
         this.call_price = new Price({
             base: this.inverted ? quote : base,
             quote: this.inverted ? base : quote
@@ -722,12 +721,12 @@ class CallOrder {
     }
 
     /*
-    * Assume a USD:BTS market
-    * The call order will always be selling BTS in order to buy USD
-    * The asset being sold is always the collateral, which is call_price.base.asset_id.
-    * The amount being sold depends on how big the debt is, only enough
-    * collateral will be sold to cover the debt
-    */
+     * Assume a USD:BTS market
+     * The call order will always be selling BTS in order to buy USD
+     * The asset being sold is always the collateral, which is call_price.base.asset_id.
+     * The amount being sold depends on how big the debt is, only enough
+     * collateral will be sold to cover the debt
+     */
     amountForSale(isBid = this.isBid()) {
         if (this._for_sale) return this._for_sale;
         // return this._for_sale = new Asset({

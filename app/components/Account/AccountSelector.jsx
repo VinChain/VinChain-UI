@@ -117,7 +117,8 @@ class AccountSelector extends React.Component {
         if (typeof e === "string") {
             value = e;
         } else {
-            value = e.target.value.trim();
+            value =
+                e && e.target && e.target.value ? e.target.value.trim() : "";
         }
 
         if (!allowUppercase) value = value.toLowerCase();
@@ -184,12 +185,14 @@ class AccountSelector extends React.Component {
             account.displayText =
                 account.accountType === "name"
                     ? "#" + account.get("id").substring(4)
-                    : account.accountType === "id" ? account.get("name") : null;
+                    : account.accountType === "id"
+                    ? account.get("name")
+                    : null;
         }
 
         // Without Typeahead Error Handling
         if (!typeahead) {
-            if (!account)
+            if (!account && accountName !== "")
                 error = counterpart.translate("account.errors.unknown");
         } else {
             if (allowPubKey && account.accountType === "pubkey")
@@ -258,8 +261,8 @@ class AccountSelector extends React.Component {
         });
 
         let linked_status = !this.props.account ? null : myActiveAccounts.has(
-            account.get("name")
-        ) || contacts.has(account.get("name")) ? (
+              account.get("name")
+          ) || contacts.has(account.get("name")) ? (
             <span
                 className="tooltip"
                 data-place="top"
@@ -325,8 +328,8 @@ class AccountSelector extends React.Component {
                                 )}
                             >
                                 <span style={{paddingRight: "1.5rem"}}>
-                                    {account && account.statusText}&nbsp;{account &&
-                                        account.displayText}
+                                    {account && account.statusText}&nbsp;
+                                    {account && account.displayText}
                                 </span>
                                 {linked_status}
                             </label>
@@ -446,16 +449,19 @@ class AccountSelector extends React.Component {
 
 AccountSelector = BindToChainState(AccountSelector, {keep_updating: true});
 
-AccountSelector = connect(AccountSelector, {
-    listenTo() {
-        return [AccountStore];
-    },
-    getProps() {
-        return {
-            myActiveAccounts: AccountStore.getState().myActiveAccounts,
-            contacts: AccountStore.getState().accountContacts
-        };
+AccountSelector = connect(
+    AccountSelector,
+    {
+        listenTo() {
+            return [AccountStore];
+        },
+        getProps() {
+            return {
+                myActiveAccounts: AccountStore.getState().myActiveAccounts,
+                contacts: AccountStore.getState().accountContacts
+            };
+        }
     }
-});
+);
 
 export default AccountSelector;

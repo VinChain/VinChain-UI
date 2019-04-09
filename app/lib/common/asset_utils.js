@@ -3,15 +3,15 @@ import assetConstants from "../chain/asset_constants";
 export default class AssetUtils {
     static getFlagBooleans(mask, isBitAsset = false) {
         let booleans = {
-            charge_market_fee: false,
+            // charge_market_fee: false,
             white_list: false,
             override_authority: false,
-            transfer_restricted: false,
-            disable_force_settle: false,
-            global_settle: false,
-            disable_confidential: false,
-            witness_fed_asset: false,
-            committee_fed_asset: false
+            transfer_restricted: false
+            // disable_force_settle: false,
+            // global_settle: false,
+            // disable_confidential: false,
+            // witness_fed_asset: false,
+            // committee_fed_asset: false
         };
 
         if (mask === "all") {

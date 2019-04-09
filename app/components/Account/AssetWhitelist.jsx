@@ -17,12 +17,7 @@ class AssetWhitelist extends React.Component {
         this.state = {
             listType: props.assetWhiteListType,
             accountTable: props.assetWhiteListType.indexOf("market") === -1,
-            listTypes: [
-                "whitelist_authorities",
-                "blacklist_authorities",
-                "whitelist_markets",
-                "blacklist_markets"
-            ],
+            listTypes: ["whitelist_authorities", "blacklist_authorities"],
             assetInput: null,
             asset_id: null
         };
@@ -121,70 +116,6 @@ class AssetWhitelist extends React.Component {
         });
     }
 
-    renderMarketTable() {
-        const {listType} = this.state;
-
-        return (
-            <div>
-                <table className="table dashboard-table table-hover">
-                    <thead>
-                        <tr>
-                            <th>
-                                <Translate content="explorer.asset.title" />
-                            </th>
-                            <th>
-                                <Translate content="account.perm.remove_text" />
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {this.props[listType].map(a => {
-                            return (
-                                <tr key={a}>
-                                    <td>
-                                        <LinkToAssetById asset={a} />
-                                    </td>
-                                    <td
-                                        className="clickable"
-                                        onClick={this.props.onChangeList.bind(
-                                            this,
-                                            listType,
-                                            "remove",
-                                            a
-                                        )}
-                                    >
-                                        <Icon
-                                            name="cross-circle"
-                                            className="icon-14px"
-                                        />
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-                <div style={{paddingTop: "2rem"}}>
-                    <AssetSelector
-                        label={`explorer.asset.whitelist.${listType}`}
-                        onChange={this._onAssetChange.bind(this)}
-                        asset={this.state.assetInput}
-                        assetInput={this.state.assetInput}
-                        tabIndex={1}
-                        style={{width: "100%"}}
-                        onFound={this._onAssetFound.bind(this)}
-                        action_label="account.perm.confirm_add"
-                        onAction={this.props.onChangeList.bind(
-                            this,
-                            listType,
-                            "add",
-                            this.state.asset_id
-                        )}
-                    />
-                </div>
-            </div>
-        );
-    }
-
     _onSwitchType(type) {
         this.setState({
             listType: type,
@@ -227,9 +158,7 @@ class AssetWhitelist extends React.Component {
                             })}
                         </div>
                     </div>
-                    {accountTable
-                        ? this.renderAccountTables()
-                        : this.renderMarketTable()}
+                    {this.renderAccountTables()}
                     {this.props.children}
                 </div>
             </div>
@@ -237,16 +166,19 @@ class AssetWhitelist extends React.Component {
     }
 }
 
-export default connect(AssetWhitelist, {
-    listenTo() {
-        return [SettingsStore];
-    },
-    getProps() {
-        return {
-            assetWhiteListType: SettingsStore.getState().viewSettings.get(
-                "assetWhiteListType",
-                "whitelist_authorities"
-            )
-        };
+export default connect(
+    AssetWhitelist,
+    {
+        listenTo() {
+            return [SettingsStore];
+        },
+        getProps() {
+            return {
+                assetWhiteListType: SettingsStore.getState().viewSettings.get(
+                    "assetWhiteListType",
+                    "whitelist_authorities"
+                )
+            };
+        }
     }
-});
+);

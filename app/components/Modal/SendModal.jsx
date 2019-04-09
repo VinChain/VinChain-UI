@@ -6,6 +6,7 @@ import {ChainStore} from "bitsharesjs/es";
 import AccountSelect from "../Forms/AccountSelect";
 import AmountSelector from "../Utility/AmountSelector";
 import AccountStore from "stores/AccountStore";
+import WalletUnlockStore from "stores/WalletUnlockStore";
 import AccountSelector from "../Account/AccountSelector";
 import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import {Asset} from "common/MarketClasses";
@@ -118,7 +119,7 @@ class SendModal extends React.Component {
             precision: asset.get("precision")
         });
 
-        this.setState({hidden: true});
+        this.onClose();
 
         AccountActions.transfer(
             this.state.from_account.get("id"),
@@ -132,7 +133,6 @@ class SendModal extends React.Component {
             this.state.feeAsset ? this.state.feeAsset.get("id") : "1.3.0"
         )
             .then(() => {
-                this.onClose();
                 TransactionConfirmStore.unlisten(this.onTrxIncluded);
                 TransactionConfirmStore.listen(this.onTrxIncluded);
             })
@@ -375,26 +375,22 @@ class SendModal extends React.Component {
         checkFeeStatusAsync({
             accountID: from_account.get("id"),
             feeID: fee_asset_id,
-            options: ["price_per_kbyte"],
+            options: ["percentage"],
             data: {
-                type: "memo",
-                content: state.memo
+                amount: state.amount,
+                isUia: fee_asset_id !== "1.3.0"
             }
         }).then(({fee, hasBalance, hasPoolBalance}) =>
-            shouldPayFeeWithAssetAsync(from_account, fee).then(
-                should =>
-                    should
-                        ? this.setState(
-                              {fee_asset_id: asset_id},
-                              this._updateFee
-                          )
-                        : this.setState({
-                              feeAmount: fee,
-                              fee_asset_id: fee.asset_id,
-                              hasBalance,
-                              hasPoolBalance,
-                              error: !hasBalance || !hasPoolBalance
-                          })
+            shouldPayFeeWithAssetAsync(from_account, fee).then(should =>
+                should
+                    ? this.setState({fee_asset_id: asset_id}, this._updateFee)
+                    : this.setState({
+                          feeAmount: fee,
+                          fee_asset_id: fee.asset_id,
+                          hasBalance,
+                          hasPoolBalance,
+                          error: !hasBalance || !hasPoolBalance
+                      })
             )
         );
     }
@@ -421,16 +417,14 @@ class SendModal extends React.Component {
                 asset,
                 asset_id: asset.get("id"),
                 error: null,
-                maxAmount: false
+                maxAmount: false,
+                feeAsset: asset,
+                fee_asset_id: asset.get("id")
             },
-            this._checkBalance
-        );
-    }
-
-    onFeeChanged({asset}) {
-        this.setState(
-            {feeAsset: asset, fee_asset_id: asset.get("id"), error: null},
-            this._updateFee
+            () => {
+                this._checkBalance();
+                this._updateFee();
+            }
         );
     }
 
@@ -558,7 +552,8 @@ class SendModal extends React.Component {
                         <Translate
                             component="span"
                             content="transfer.available"
-                        />:{" "}
+                        />
+                        :{" "}
                         <span
                             className={_error}
                             style={{
@@ -607,19 +602,21 @@ class SendModal extends React.Component {
             }
         }
 
-        let propose_incomplete = propose && !propose_account;
         const amountValue = parseFloat(
             String.prototype.replace.call(amount, /,/g, "")
         );
         const isAmountValid = amountValue && !isNaN(amountValue);
         const isSendNotValid =
             !from_account ||
+            !to_account ||
+            !from_name ||
+            !to_name ||
             !isAmountValid ||
             !asset ||
             from_error ||
-            propose_incomplete ||
             balanceError ||
-            (!AccountStore.isMyAccount(from_account) && !propose);
+            (!WalletUnlockStore.getState().locked &&
+                !AccountStore.isMyAccount(from_account));
 
         let tabIndex = this.props.tabIndex; // Continue tabIndex on props count
 
@@ -712,8 +709,8 @@ class SendModal extends React.Component {
                                                 asset_types.length > 0 && asset
                                                     ? asset.get("id")
                                                     : asset_id
-                                                        ? asset_id
-                                                        : asset_types[0]
+                                                    ? asset_id
+                                                    : asset_types[0]
                                             }
                                             assets={asset_types}
                                             display_balance={balance}
@@ -770,21 +767,23 @@ class SendModal extends React.Component {
                                                     label="transfer.fee"
                                                     disabled={true}
                                                     amount={fee}
-                                                    onChange={this.onFeeChanged.bind(
-                                                        this
-                                                    )}
+                                                    onChange={() => {}}
                                                     asset={
-                                                        fee_asset_types.length &&
-                                                        feeAmount
-                                                            ? feeAmount.asset_id
-                                                            : fee_asset_types.length ===
-                                                              1
-                                                                ? fee_asset_types[0]
-                                                                : fee_asset_id
-                                                                    ? fee_asset_id
-                                                                    : fee_asset_types[0]
+                                                        asset_types.length >
+                                                            0 && asset
+                                                            ? asset.get("id")
+                                                            : asset_id
+                                                            ? asset_id
+                                                            : asset_types[0]
                                                     }
-                                                    assets={fee_asset_types}
+                                                    assets={[
+                                                        asset_types.length >
+                                                            0 && asset
+                                                            ? asset.get("id")
+                                                            : asset_id
+                                                            ? asset_id
+                                                            : asset_types[0]
+                                                    ]}
                                                     display_balance={
                                                         balance_fee
                                                     }
@@ -928,16 +927,19 @@ class SendModalConnectWrapper extends React.Component {
     }
 }
 
-SendModalConnectWrapper = connect(SendModalConnectWrapper, {
-    listenTo() {
-        return [AccountStore];
-    },
-    getProps() {
-        return {
-            currentAccount: AccountStore.getState().currentAccount,
-            passwordAccount: AccountStore.getState().passwordAccount
-        };
+SendModalConnectWrapper = connect(
+    SendModalConnectWrapper,
+    {
+        listenTo() {
+            return [AccountStore];
+        },
+        getProps() {
+            return {
+                currentAccount: AccountStore.getState().currentAccount,
+                passwordAccount: AccountStore.getState().passwordAccount
+            };
+        }
     }
-});
+);
 
 export default SendModalConnectWrapper;

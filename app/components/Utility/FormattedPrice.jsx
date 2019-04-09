@@ -230,7 +230,7 @@ class FormattedPrice extends React.Component {
 
         return (
             <span className="formatted-price">
-                {formatted_value} {popOver ? popOver : symbols}
+                {formatted_value} {symbols}
             </span>
         );
     }

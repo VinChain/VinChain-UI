@@ -79,7 +79,8 @@ class TransactionConfirm extends React.Component {
                     <div>
                         <p>
                             <Translate content="transaction.transaction_confirmed" />
-                            &nbsp;&nbsp;<span>
+                            &nbsp;&nbsp;
+                            <span>
                                 <Icon
                                     name="checkmark-circle"
                                     size="1x"
@@ -88,18 +89,20 @@ class TransactionConfirm extends React.Component {
                             </span>
                         </p>
                         <table>
-                            <Operation
-                                op={
-                                    this.props.transaction.serialize()
-                                        .operations[0]
-                                }
-                                block={1}
-                                current={"1.2.0"}
-                                hideFee
-                                inverted={false}
-                                hideOpLabel={true}
-                                hideDate={true}
-                            />
+                            <tbody>
+                                <Operation
+                                    op={
+                                        this.props.transaction.serialize()
+                                            .operations[0]
+                                    }
+                                    block={1}
+                                    current={"1.2.0"}
+                                    hideFee
+                                    inverted={false}
+                                    hideOpLabel={true}
+                                    hideDate={true}
+                                />
+                            </tbody>
                         </table>
                     </div>
                 ),
@@ -325,13 +328,16 @@ class TransactionConfirm extends React.Component {
     }
 }
 
-TransactionConfirm = connect(TransactionConfirm, {
-    listenTo() {
-        return [TransactionConfirmStore];
-    },
-    getProps() {
-        return TransactionConfirmStore.getState();
+TransactionConfirm = connect(
+    TransactionConfirm,
+    {
+        listenTo() {
+            return [TransactionConfirmStore];
+        },
+        getProps() {
+            return TransactionConfirmStore.getState();
+        }
     }
-});
+);
 
 export default TransactionConfirm;
