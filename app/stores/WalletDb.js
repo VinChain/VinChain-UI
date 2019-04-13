@@ -127,7 +127,13 @@ class WalletDb extends BaseStore {
         return this.decryptTcomb_PrivateKey(private_key_tcomb);
     }
 
-    process_transaction(tr, signer_pubkeys, broadcast, extra_keys = []) {
+    process_transaction(
+        tr,
+        signer_pubkeys,
+        broadcast,
+        extra_keys = [],
+        showBroadcasting
+    ) {
         const passwordLogin = SettingsStore.getState().settings.get(
             "passwordLogin"
         );
@@ -213,7 +219,8 @@ class WalletDb extends BaseStore {
                                         TransactionConfirmActions.confirm(
                                             tr,
                                             resolve,
-                                            reject
+                                            reject,
+                                            showBroadcasting
                                         );
                                     });
                                     return p;
@@ -442,9 +449,8 @@ class WalletDb extends BaseStore {
                         if (!foundRole) {
                             let alsoCheckRole =
                                 role === "active" ? "owner" : "active";
-                            acc
-                                .getIn([alsoCheckRole, "key_auths"])
-                                .forEach(auth => {
+                            acc.getIn([alsoCheckRole, "key_auths"]).forEach(
+                                auth => {
                                     if (auth.get(0) === key.pubKey) {
                                         setKey(
                                             alsoCheckRole,
@@ -454,7 +460,8 @@ class WalletDb extends BaseStore {
                                         foundRole = true;
                                         return false;
                                     }
-                                });
+                                }
+                            );
                         }
                     }
                 }

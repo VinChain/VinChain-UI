@@ -18,12 +18,15 @@ import ReactTooltip from "react-tooltip";
 import NotificationSystem from "react-notification-system";
 import TransactionConfirm from "./components/Blockchain/TransactionConfirm";
 import WalletUnlockModal from "./components/Wallet/WalletUnlockModal";
+import SendPaymentModal from "./components/Modal/SendPaymentModal";
 import BrowserSupportModal from "./components/Modal/BrowserSupportModal";
 import Footer from "./components/Layout/Footer";
 import Deprecate from "./Deprecate";
 import WalletManagerStore from "stores/WalletManagerStore";
 import Incognito from "./components/Layout/Incognito";
 import {isIncognito} from "feature_detect";
+import WalletUnlockActions from "actions/WalletUnlockActions";
+import {FetchChain} from "bitsharesjs/es";
 
 class App extends React.Component {
     constructor(props) {
@@ -118,6 +121,8 @@ class App extends React.Component {
             this.refs.browser_modal.show();
         }
 
+        this._processPaymentRedirect();
+
         this.props.router.listen(this._rebuildTooltips);
 
         this._rebuildTooltips();
@@ -127,6 +132,61 @@ class App extends React.Component {
                 this.setState({incognito});
             }.bind(this)
         );
+    }
+
+    _processPaymentRedirect() {
+        if (this.props.location.query.invoiceId) {
+            try {
+                let {
+                    accountId,
+                    tokenName,
+                    amount,
+                    invoiceId,
+                    returnURL
+                } = this.props.location.query;
+                if (
+                    !accountId ||
+                    !tokenName ||
+                    !amount ||
+                    !invoiceId ||
+                    !returnURL
+                ) {
+                    throw new Error(
+                        "Could not process payment because of missed required params"
+                    );
+                }
+
+                let unlock_promise = WalletUnlockActions.unlock();
+                Promise.all([
+                    FetchChain("getAccount", accountId),
+                    FetchChain("getAsset", tokenName),
+                    unlock_promise
+                ])
+                    .then(res => {
+                        let [to_account, asset] = res;
+                        this.send_payment_modal.show({
+                            to_account,
+                            amount,
+                            asset,
+                            memo: invoiceId,
+                            returnURL
+                        });
+                    })
+                    .catch(error => {
+                        console.error(
+                            "Error while processing payment redirect",
+                            error,
+                            error.stack
+                        );
+                    });
+            } catch (error) {
+                console.error(
+                    "Error while processing payment redirect",
+                    error,
+                    error.stack
+                );
+            }
+        }
     }
 
     _onIgnoreIncognitoWarning() {
@@ -266,6 +326,12 @@ class App extends React.Component {
                     <BrowserNotifications />
                     <WalletUnlockModal />
                     <BrowserSupportModal ref="browser_modal" />
+                    <SendPaymentModal
+                        id="send_payment_modal"
+                        refCallback={e => {
+                            if (e) this.send_payment_modal = e;
+                        }}
+                    />
                 </div>
             </div>
         );
@@ -290,19 +356,22 @@ class RootIntl extends React.Component {
     }
 }
 
-RootIntl = connect(RootIntl, {
-    listenTo() {
-        return [IntlStore, WalletManagerStore, SettingsStore];
-    },
-    getProps() {
-        return {
-            locale: IntlStore.getState().currentLocale,
-            walletMode:
-                !SettingsStore.getState().settings.get("passwordLogin") ||
-                !!WalletManagerStore.getState().current_wallet
-        };
+RootIntl = connect(
+    RootIntl,
+    {
+        listenTo() {
+            return [IntlStore, WalletManagerStore, SettingsStore];
+        },
+        getProps() {
+            return {
+                locale: IntlStore.getState().currentLocale,
+                walletMode:
+                    !SettingsStore.getState().settings.get("passwordLogin") ||
+                    !!WalletManagerStore.getState().current_wallet
+            };
+        }
     }
-});
+);
 
 class Root extends React.Component {
     static childContextTypes = {

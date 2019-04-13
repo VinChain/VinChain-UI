@@ -4,13 +4,13 @@ import counterpart from "counterpart";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 
 class TransactionConfirmActions {
-    confirm(transaction, resolve, reject) {
-        return {transaction, resolve, reject};
+    confirm(transaction, resolve, reject, showBroadcasting) {
+        return {transaction, resolve, reject, showBroadcasting};
     }
 
-    broadcast(transaction, resolve, reject) {
+    broadcast(transaction, resolve, reject, showBroadcasting) {
         return dispatch => {
-            dispatch({broadcasting: true, closed: true});
+            dispatch({broadcasting: true, closed: !showBroadcasting});
 
             let broadcast_timeout = setTimeout(() => {
                 dispatch({
