@@ -186,7 +186,7 @@ class TransactionConfirm extends React.Component {
                     <Translate component="h6" content="transaction.waiting" />
                 </div>
             );
-            button_group = (
+            button_group = !this.props.showBroadcasting ? (
                 <div className="button-group">
                     <div
                         className="button primary hollow"
@@ -195,7 +195,7 @@ class TransactionConfirm extends React.Component {
                         <Translate content="transfer.close" />
                     </div>
                 </div>
-            );
+            ) : null;
         } else if (broadcasting) {
             header = (
                 <div
