@@ -57,7 +57,7 @@ class SendPaymentModal extends React.Component {
             memo: "",
             error: null,
             feeAsset: null,
-            fee_asset_id: "1.3.0",
+            fee_asset_id: null,
             feeAmount: new Asset({amount: 0}),
             feeStatus: {},
             maxAmount: false,
@@ -89,7 +89,7 @@ class SendPaymentModal extends React.Component {
                 memo: "",
                 error: null,
                 feeAsset: null,
-                fee_asset_id: "1.3.0",
+                fee_asset_id: null,
                 feeAmount: new Asset({amount: 0}),
                 feeStatus: {},
                 maxAmount: false,
@@ -152,8 +152,15 @@ class SendPaymentModal extends React.Component {
                 amount: amount,
                 asset: asset,
                 asset_id: asset.get("id"),
+                feeAsset: asset,
+                fee_asset_id: asset.get("id"),
                 from_name: from_name,
                 from_account: ChainStore.getAccount(from_name),
+                feeAmount: new Asset({
+                    amount: 0,
+                    asset_id: asset.get("id"),
+                    precision: asset.get("precision")
+                }),
                 memo: memo,
                 returnURL: returnURL
             },
