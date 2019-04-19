@@ -144,11 +144,16 @@ class SendPaymentModal extends React.Component {
     }
 
     _initForm({to_account, amount, asset, memo, returnURL}) {
-        let from_name = this.props.passwordAccount;
+        let to_name = to_account.get("name");
+        let from_name = this.props.passwordAccount || this.props.currentAccount;
+
+        if (from_name == to_name)
+            from_name = this.props.myActiveAccounts.first();
+
         this.setState(
             {
                 to_account: to_account,
-                to_name: to_account.get("name"),
+                to_name: to_name,
                 amount: amount,
                 asset: asset,
                 asset_id: asset.get("id"),
@@ -588,7 +593,9 @@ SendPaymentModalConnectWrapper = connect(
         },
         getProps() {
             return {
-                passwordAccount: AccountStore.getState().passwordAccount
+                passwordAccount: AccountStore.getState().passwordAccount,
+                currentAccount: AccountStore.getState().currentAccount,
+                myActiveAccounts: AccountStore.getState().myActiveAccounts
             };
         }
     }
