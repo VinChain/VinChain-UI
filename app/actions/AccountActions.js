@@ -68,7 +68,8 @@ class AccountActions {
         asset,
         memo,
         propose_account = null,
-        fee_asset_id = "1.3.0"
+        fee_asset_id = "1.3.0",
+        showBroadcasting = false
     ) {
         // Set the fee asset to use
         fee_asset_id = accountUtils.getFinalFeeAsset(
@@ -86,7 +87,8 @@ class AccountActions {
                     asset,
                     memo,
                     propose_account,
-                    fee_asset_id
+                    fee_asset_id,
+                    showBroadcasting
                 }).then(result => {
                     // console.log( "transfer result: ", result )
 

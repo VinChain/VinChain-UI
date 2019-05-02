@@ -35,7 +35,6 @@ class SendModal extends React.Component {
         this.onTrxIncluded = this.onTrxIncluded.bind(this);
 
         this._updateFee = debounce(this._updateFee.bind(this), 250);
-        this._checkFeeStatus = this._checkFeeStatus.bind(this);
         this._checkBalance = this._checkBalance.bind(this);
 
         ZfApi.subscribe("transaction_confirm_actions", (name, msg) => {
@@ -119,7 +118,7 @@ class SendModal extends React.Component {
             precision: asset.get("precision")
         });
 
-        this.onClose();
+        this.setState({hidden: true});
 
         AccountActions.transfer(
             this.state.from_account.get("id"),
@@ -133,6 +132,7 @@ class SendModal extends React.Component {
             this.state.feeAsset ? this.state.feeAsset.get("id") : "1.3.0"
         )
             .then(() => {
+                this.onClose();
                 TransactionConfirmStore.unlisten(this.onTrxIncluded);
                 TransactionConfirmStore.listen(this.onTrxIncluded);
             })
@@ -182,7 +182,6 @@ class SendModal extends React.Component {
     componentWillMount() {
         this.nestedRef = null;
         this._updateFee();
-        this._checkFeeStatus();
     }
 
     shouldComponentUpdate(np, ns) {
@@ -228,7 +227,6 @@ class SendModal extends React.Component {
                 },
                 () => {
                     this._updateFee();
-                    this._checkFeeStatus(ChainStore.getAccount(np.from_name));
                 }
             );
         }
@@ -262,44 +260,6 @@ class SendModal extends React.Component {
         );
         if (hasBalance === null) return;
         this.setState({balanceError: !hasBalance});
-    }
-
-    _checkFeeStatus(account = this.state.from_account) {
-        if (!account) return;
-
-        const assets = Object.keys(account.get("balances").toJS()).sort(
-            utils.sortID
-        );
-        let feeStatus = {};
-        let p = [];
-        assets.forEach(a => {
-            p.push(
-                checkFeeStatusAsync({
-                    accountID: account.get("id"),
-                    feeID: a,
-                    options: ["price_per_kbyte"],
-                    data: {
-                        type: "memo",
-                        content: this.state.memo
-                    }
-                })
-            );
-        });
-        Promise.all(p)
-            .then(status => {
-                assets.forEach((a, idx) => {
-                    feeStatus[a] = status[idx];
-                });
-                if (!utils.are_equal_shallow(this.state.feeStatus, feeStatus)) {
-                    this.setState({
-                        feeStatus
-                    });
-                }
-                this._checkBalance();
-            })
-            .catch(err => {
-                console.error(err);
-            });
     }
 
     _setTotal(asset_id, balance_id) {

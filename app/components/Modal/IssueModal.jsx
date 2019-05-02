@@ -20,7 +20,7 @@ class IssueModal extends React.Component {
             amount: props.amount || 0,
             to: props.to || "",
             to_id: null,
-            memo: null
+            memo: ""
         };
     }
 
@@ -52,16 +52,14 @@ class IssueModal extends React.Component {
             asset_to_issue.get("issuer"),
             asset_to_issue.get("id"),
             amount,
-            this.state.memo
-                ? new Buffer(this.state.memo, "utf-8")
-                : this.state.memo
+            this.state.memo ? new Buffer(this.state.memo, "utf-8") : null
         );
 
         this.setState({
             amount: 0,
             to: "",
             to_id: null,
-            memo: null
+            memo: ""
         });
     }
 
@@ -70,7 +68,7 @@ class IssueModal extends React.Component {
             amount: 0,
             to: "",
             to_id: null,
-            memo: null
+            memo: ""
         });
         this.props.onClose();
     }

@@ -92,7 +92,8 @@ const ApplicationApi = {
         encrypt_memo = true,
         optional_nonce = null,
         propose_account = null,
-        fee_asset_id = "1.3.0"
+        fee_asset_id = "1.3.0",
+        showBroadcasting = false
     }) {
         let memo_sender = propose_account || from_account;
 
@@ -179,8 +180,8 @@ const ApplicationApi = {
                                   memo
                               )
                             : Buffer.isBuffer(memo)
-                                ? memo.toString("utf-8")
-                                : memo
+                            ? memo.toString("utf-8")
+                            : memo
                     };
                 }
                 // Allow user to choose asset with which to pay fees #356
@@ -221,7 +222,9 @@ const ApplicationApi = {
                     return WalletDb.process_transaction(
                         tr,
                         null, //signer_private_keys,
-                        broadcast
+                        broadcast,
+                        [],
+                        showBroadcasting
                     );
                 });
             })
@@ -246,7 +249,6 @@ const ApplicationApi = {
         ])
             .then(res => {
                 let [chain_memo_sender, chain_to] = res;
-
                 let memo_from_public, memo_to_public;
                 if (memo && encrypt_memo) {
                     memo_from_public = chain_memo_sender.getIn([
@@ -298,8 +300,8 @@ const ApplicationApi = {
                                   memo
                               )
                             : Buffer.isBuffer(memo)
-                                ? memo.toString("utf-8")
-                                : memo
+                            ? memo.toString("utf-8")
+                            : memo
                     };
                 }
 

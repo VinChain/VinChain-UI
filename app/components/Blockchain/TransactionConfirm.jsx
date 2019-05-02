@@ -52,7 +52,8 @@ class TransactionConfirm extends React.Component {
             TransactionConfirmActions.broadcast(
                 this.props.transaction,
                 this.props.resolve,
-                this.props.reject
+                this.props.reject,
+                this.props.showBroadcasting
             );
         }
     }
@@ -73,7 +74,13 @@ class TransactionConfirm extends React.Component {
     }
 
     componentWillReceiveProps(np) {
-        if (np.broadcast && np.included && !this.props.included && !np.error) {
+        if (
+            np.broadcast &&
+            np.included &&
+            !this.props.included &&
+            !np.error &&
+            !this.props.showBroadcasting
+        ) {
             notify.addNotification.defer({
                 children: (
                     <div>
@@ -179,7 +186,7 @@ class TransactionConfirm extends React.Component {
                     <Translate component="h6" content="transaction.waiting" />
                 </div>
             );
-            button_group = (
+            button_group = !this.props.showBroadcasting ? (
                 <div className="button-group">
                     <div
                         className="button primary hollow"
@@ -188,7 +195,7 @@ class TransactionConfirm extends React.Component {
                         <Translate content="transfer.close" />
                     </div>
                 </div>
-            );
+            ) : null;
         } else if (broadcasting) {
             header = (
                 <div
